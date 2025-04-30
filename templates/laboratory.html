@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load core_tags %}
+{% block title %}{{ subject.name }} Laboratoriya - {{ grade.number }}-sinf{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Home</a></li>
+            <li class="breadcrumb-item"><a href="/{{ subject.slug }}/" class="text-decoration-none">{{ subject.name }}</a></li>
+            <li class="breadcrumb-item">Laboratoriya</li>
+            <li class="breadcrumb-item active" aria-current="page">{{ grade.number }}-sinf</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center gap-3">
+            <div class="rounded-circle p-3 
+                {% if subject.name == 'Kimyo' %}bg-success bg-opacity-10
+                {% elif subject.name == 'Fizika' %}bg-primary bg-opacity-10
+                {% elif subject.name == 'Matematika' %}bg-warning bg-opacity-10
+                {% else %}bg-secondary bg-opacity-10{% endif %}">
+                <i class="bi 
+                    {% if subject.name == 'Kimyo' %}bi-flask text-success
+                    {% elif subject.name == 'Fizika' %}bi-atom text-primary
+                    {% elif subject.name == 'Matematika' %}bi-calculator text-warning
+                    {% else %}bi-microscope text-secondary{% endif %}" 
+                    style="font-size: 1.5rem;"></i>
+            </div>
+            <div>
+                <h2 class="mb-0">{{ subject.name }} Laboratoriya</h2>
+                <p class="text-muted mb-0">{{ grade.number }}-sinf</p>
+            </div>
+        </div>
+        <a href="/" class="btn btn-outline-primary d-flex align-items-center gap-2">
+            <i class="bi bi-arrow-left"></i>
+            Orqaga
+        </a>
+    </div>
+
+    <div class="row g-4">
+        {% for experiment in experiments %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 hover-shadow transition">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{{ experiment.title }}</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-4">{{ experiment.description|truncatewords:20 }}</p>
+                    <div class="d-flex justify-content-between text-sm">
+                        <div>
+                            <span class="fw-medium">Qiyinlik:</span> 
+                            {% if experiment.difficulty == 'easy' %}
+                            <span class="text-success">Oson</span>
+                            {% elif experiment.difficulty == 'medium' %}
+                            <span class="text-warning">O'rta</span>
+                            {% else %}
+                            <span class="text-danger">Qiyin</span>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <span class="fw-medium">Davomiyligi:</span> {{ experiment.duration }}
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent d-flex justify-content-between align-items-center">
+                    <span class="badge {% if experiment.id in user_experiments and user_experiments|get_item:experiment.id %}bg-success{% else %}bg-secondary{% endif %}">
+                        {% if experiment.id in user_experiments and user_experiments|get_item:experiment.id %}
+                        Yakunlangan
+                        {% else %}
+                        Yakunlanmagan
+                        {% endif %}
+                    </span>
+                    <a href="#" class="btn btn-primary btn-sm">Boshlash</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                <p class="mb-0">Hozircha {{ subject.name|lower }} fani uchun {{ grade.number }}-sinf tajribalari mavjud emas.</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

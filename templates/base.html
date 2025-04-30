@@ -1,0 +1,331 @@
+{% load static %}
+{% load core_tags %}
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}EduZone - Virtual ilmiy laboratoriya{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse" id="sidebarMenu">
+                <div class="position-sticky pt-3">
+                    <div class="d-flex align-items-center justify-content-center py-3 mb-3 border-bottom">
+                        <a href="/" class="d-flex align-items-center text-decoration-none">
+                            <div class="position-relative d-flex align-items-center justify-content-center me-2">
+                                <div class="position-absolute bg-primary opacity-70" style="width: 40px; height: 40px; transform: rotate(45deg);"></div>
+                                <i class="bi bi-headset text-white z-index-1" style="font-size: 24px;"></i>
+                            </div>
+                            <span class="fs-4 fw-bold text-gradient">EduZone</span>
+                        </a>
+                    </div>
+                    
+                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>FANLAR</span>
+                    </h6>
+                    <ul class="nav flex-column">
+                        <!-- Kimyo -->
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center" data-bs-toggle="collapse" href="#kimyoSubmenu" role="button" aria-expanded="false">
+                                <i class="bi bi-flask text-success me-2"></i>
+                                <span>Kimyo</span>
+                                <i class="bi bi-chevron-down ms-auto"></i>
+                            </a>
+                            <div class="collapse" id="kimyoSubmenu">
+                                <ul class="nav flex-column ms-3">
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/kimyo/">Umumiy</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link d-flex align-items-center" data-bs-toggle="collapse" href="#kimyoLabSubmenu" role="button" aria-expanded="false">
+                                            <span>Laboratoriya</span>
+                                            <i class="bi bi-chevron-down ms-auto"></i>
+                                        </a>
+                                        <div class="collapse" id="kimyoLabSubmenu">
+                                            <ul class="nav flex-column ms-3">
+                                                <li class="nav-item">
+                                                    <a class="nav-link" href="/kimyo/laboratoriya/8/">8-sinf</a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link" href="/kimyo/laboratoriya/9/">9-sinf</a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link" href="/kimyo/laboratoriya/10/">10-sinf</a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link" href="/kimyo/laboratoriya/11/">11-sinf</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link d-flex align-items-center" href="/kimyo/vr-lab/">
+                                            <i class="bi bi-headset me-2"></i>
+                                            <span>VR-Lab (Soon)</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        
+                        <!-- Fizika -->
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center" data-bs-toggle="collapse" href="#fizikaSubmenu" role="button" aria-expanded="false">
+                                <i class="bi bi-atom text-primary me-2"></i>
+                                <span>Fizika</span>
+                                <i class="bi bi-chevron-down ms-auto"></i>
+                            </a>
+                            <div class="collapse" id="fizikaSubmenu">
+                                <ul class="nav flex-column ms-3">
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/fizika/">Umumiy</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link d-flex align-items-center" data-bs-toggle="collapse" href="#fizikaLabSubmenu" role="button" aria-expanded="false">
+                                            <span>Laboratoriya</span>
+                                            <i class="bi bi-chevron-down ms-auto"></i>
+                                        </a>
+                                        <div class="collapse" id="fizikaLabSubmenu">
+                                            <ul class="nav flex-column ms-3">
+                                                <li class="nav-item">
+                                                    <a class="nav-link" href="/fizika/laboratoriya/8/">8-sinf</a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link" href="/fizika/laboratoriya/9/">9-sinf</a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link" href="/fizika/laboratoriya/10/">10-sinf</a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link" href="/fizika/laboratoriya/11/">11-sinf</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link d-flex align-items-center" href="/fizika/vr-lab/">
+                                            <i class="bi bi-headset me-2"></i>
+                                            <span>VR-Lab (Soon)</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        
+                        <!-- Matematika -->
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center" data-bs-toggle="collapse" href="#matematikaSubmenu" role="button" aria-expanded="false">
+                                <i class="bi bi-calculator text-warning me-2"></i>
+                                <span>Matematika</span>
+                                <i class="bi bi-chevron-down ms-auto"></i>
+                            </a>
+                            <div class="collapse" id="matematikaSubmenu">
+                                <ul class="nav flex-column ms-3">
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/matematika/">Umumiy</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link d-flex align-items-center" data-bs-toggle="collapse" href="#matematikaLabSubmenu" role="button" aria-expanded="false">
+                                            <span>Laboratoriya</span>
+                                            <i class="bi bi-chevron-down ms-auto"></i>
+                                        </a>
+                                        <div class="collapse" id="matematikaLabSubmenu">
+                                            <ul class="nav flex-column ms-3">
+                                                <li class="nav-item">
+                                                    <a class="nav-link" href="/matematika/laboratoriya/8/">8-sinf</a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link" href="/matematika/laboratoriya/9/">9-sinf</a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link" href="/matematika/laboratoriya/10/">10-sinf</a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link" href="/matematika/laboratoriya/11/">11-sinf</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link d-flex align-items-center" href="/matematika/vr-lab/">
+                                            <i class="bi bi-headset me-2"></i>
+                                            <span>VR-Lab (Soon)</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        
+                        <!-- Biologiya -->
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center" data-bs-toggle="collapse" href="#biologiyaSubmenu" role="button" aria-expanded="false">
+                                <i class="bi bi-microscope text-secondary me-2"></i>
+                                <span>Biologiya</span>
+                                <i class="bi bi-chevron-down ms-auto"></i>
+                            </a>
+                            <div class="collapse" id="biologiyaSubmenu">
+                                <ul class="nav flex-column ms-3">
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/biologiya/">Umumiy</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link d-flex align-items-center" data-bs-toggle="collapse" href="#biologiyaLabSubmenu" role="button" aria-expanded="false">
+                                            <span>Laboratoriya</span>
+                                            <i class="bi bi-chevron-down ms-auto"></i>
+                                        </a>
+                                        <div class="collapse" id="biologiyaLabSubmenu">
+                                            <ul class="nav flex-column ms-3">
+                                                <li class="nav-item">
+                                                    <a class="nav-link" href="/biologiya/laboratoriya/8/">8-sinf</a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link" href="/biologiya/laboratoriya/9/">9-sinf</a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link" href="/biologiya/laboratoriya/10/">10-sinf</a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link" href="/biologiya/laboratoriya/11/">11-sinf</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link d-flex align-items-center" href="/biologiya/vr-lab/">
+                                            <i class="bi bi-headset me-2"></i>
+                                            <span>VR-Lab (Soon)</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                    
+                    <!-- Sinflar section -->
+                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>SINFLAR</span>
+                    </h6>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center" data-bs-toggle="collapse" href="#sinflarSubmenu" role="button" aria-expanded="false">
+                                <i class="bi bi-book text-purple me-2"></i>
+                                <span>Sinflar</span>
+                                <i class="bi bi-chevron-down ms-auto"></i>
+                            </a>
+                            <div class="collapse" id="sinflarSubmenu">
+                                <ul class="nav flex-column ms-3">
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/sinf/8/">8-sinf</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/sinf/9/">9-sinf</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/sinf/10/">10-sinf</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/sinf/11/">11-sinf</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <button class="navbar-toggler d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    
+                    <div class="flex-grow-1 d-flex">
+                        <div class="input-group" style="max-width: 400px;">
+                            <input type="text" class="form-control" placeholder="Search here...">
+                            <button class="btn btn-outline-secondary" type="button">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex align-items-center">
+                        <div class="dropdown me-2">
+                            <button class="btn btn-outline-secondary rounded-circle p-2" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span>🇬🇧</span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="languageDropdown">
+                                <li><a class="dropdown-item" href="#">🇺🇿 O'zbek</a></li>
+                                <li><a class="dropdown-item" href="#">🇬🇧 English</a></li>
+                                <li><a class="dropdown-item" href="#">🇷🇺 Русский</a></li>
+                            </ul>
+                        </div>
+                        
+                        <button class="btn btn-outline-secondary rounded-circle p-2 me-2" type="button">
+                            <i class="bi bi-moon"></i>
+                        </button>
+                        
+                        <button class="btn btn-outline-secondary rounded-circle p-2 me-2 position-relative" type="button">
+                            <i class="bi bi-bell"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                1
+                            </span>
+                        </button>
+                        
+                        <button class="btn btn-outline-secondary rounded-circle p-2 me-2 position-relative" type="button">
+                            <i class="bi bi-chat"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
+                                1
+                            </span>
+                        </button>
+                        
+                        {% if user.is_authenticated %}
+                        <div class="dropdown">
+                            <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="me-2">
+                                    <div>{{ user.get_full_name }}</div>
+                                    <div class="text-muted small">{{ user.profile.school }}</div>
+                                </div>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" href="{% url 'profile' %}">Profile</a></li>
+                                <li><a class="dropdown-item" href="#">Settings</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#">Sign out</a></li>
+                            </ul>
+                        </div>
+                        {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-primary">Kirish / Ro'yxatdan o'tish</a>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/static/js/main.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

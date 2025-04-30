@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Kirish - EduZone{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center min-vh-75 py-5">
+    <div class="card shadow-sm" style="max-width: 500px; width: 100%;">
+        <div class="card-header bg-transparent py-3">
+            <h3 class="card-title text-center mb-0">Kirish</h3>
+            <p class="text-muted text-center small mb-0">Tizimga kirish uchun ma'lumotlaringizni kiriting</p>
+        </div>
+        <div class="card-body p-4">
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="id_username" class="form-label">Foydalanuvchi nomi</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.username.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label for="id_password" class="form-label">Parol</label>
+                        <a href="#" class="text-decoration-none small">Parolni unutdingizmi?</a>
+                    </div>
+                    {{ form.password }}
+                    {% if form.password.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.password.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary">Kirish</button>
+                </div>
+            </form>
+        </div>
+        <div class="card-footer bg-transparent py-3 text-center">
+            <p class="mb-0">
+                Hisobingiz yo'qmi? <a href="{% url 'signup' %}" class="text-decoration-none">Ro'yxatdan o'tish</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

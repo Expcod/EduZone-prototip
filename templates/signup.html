@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}Ro'yxatdan o'tish - EduZone{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center min-vh-75 py-5">
+    <div class="card shadow-sm" style="max-width: 600px; width: 100%;">
+        <div class="card-header bg-transparent py-3">
+            <h3 class="card-title text-center mb-0">Ro'yxatdan o'tish</h3>
+            <p class="text-muted text-center small mb-0">EduZone platformasidan foydalanish uchun ro'yxatdan o'ting</p>
+        </div>
+        <div class="card-body p-4">
+            <form method="post">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="id_first_name" class="form-label">Ism</label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.first_name.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="id_last_name" class="form-label">Familiya</label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.last_name.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-12">
+                        <label for="id_username" class="form-label">Foydalanuvchi nomi</label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.username.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-12">
+                        <label for="id_email" class="form-label">Email</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.email.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-12">
+                        <label for="id_school" class="form-label">Maktab</label>
+                        {{ form.school }}
+                        {% if form.school.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.school.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="id_grade" class="form-label">Sinf</label>
+                        {{ form.grade }}
+                        {% if form.grade.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.grade.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="id_class_group" class="form-label">Guruh</label>
+                        {{ form.class_group }}
+                        {% if form.class_group.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.class_group.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-12">
+                        <label for="id_password1" class="form-label">Parol</label>
+                        {{ form.password1 }}
+                        {% if form.password1.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.password1.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-12">
+                        <label for="id_password2" class="form-label">Parolni tasdiqlang</label>
+                        {{ form.password2 }}
+                        {% if form.password2.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.password2.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary">Ro'yxatdan o'tish</button>
+                </div>
+            </form>
+        </div>
+        <div class="card-footer bg-transparent py-3 text-center">
+            <p class="mb-0">
+                Hisobingiz bormi? <a href="{% url 'login' %}" class="text-decoration-none">Kirish</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
