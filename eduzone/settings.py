@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     
     # Local apps
     'core.apps.CoreConfig',
+    'simlab.apps.SimlabConfig',
 ]
 
 MIDDLEWARE = [

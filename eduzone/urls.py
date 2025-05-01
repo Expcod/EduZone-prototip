@@ -7,6 +7,7 @@ from django.contrib.auth import views as auth_views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('core.urls')),
+    path('simlab/', include('simlab.urls', namespace='simlab')),  # Add namespace back
     path('api/', include('core.api_urls')),
     path('api-auth/', include('rest_framework.urls')),
 ]

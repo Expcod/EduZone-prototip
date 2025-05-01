@@ -1,0 +1,715 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load simlab_tags %}
+
+{% block title %}{{ simulation.title }} - EduZone{% endblock %}
+
+{% block extra_css %}
+<style>
+    .simulation-container {
+        position: relative;
+        width: 100%;
+        height: 500px;
+        background-color: #f8f9fa;
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+    
+    #simulation-canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+    
+    .control-panel {
+        background-color: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+    }
+    
+    .parameter-slider {
+        width: 100%;
+    }
+    
+    .tab-content {
+        min-height: 300px;
+    }
+    
+    .beaker {
+        position: absolute;
+        width: 150px;
+        height: 200px;
+        border: 3px solid #333;
+        border-top: none;
+        border-radius: 0 0 20px 20px;
+        background-color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .beaker-left {
+        left: 100px;
+        top: 150px;
+    }
+    
+    .beaker-right {
+        right: 100px;
+        top: 150px;
+    }
+    
+    .beaker-center {
+        left: 50%;
+        transform: translateX(-50%);
+        top: 150px;
+        width: 200px;
+    }
+    
+    .liquid {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 70%;
+        border-radius: 0 0 17px 17px;
+        transition: background-color 1s;
+    }
+    
+    .acid-liquid {
+        background-color: rgba(255, 200, 0, 0.5);
+    }
+    
+    .base-liquid {
+        background-color: rgba(0, 100, 255, 0.5);
+    }
+    
+    .mixed-liquid {
+        background-color: rgba(0, 200, 100, 0.5);
+    }
+    
+    .particle {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+    }
+    
+    .acid-particle {
+        background-color: #ff9800;
+    }
+    
+    .base-particle {
+        background-color: #2196f3;
+    }
+    
+    .salt-particle {
+        background-color: #ffffff;
+        border: 1px solid #333;
+    }
+    
+    .water-particle {
+        background-color: #90caf9;
+    }
+    
+    .ph-meter {
+        position: absolute;
+        right: 50px;
+        top: 50px;
+        width: 100px;
+        height: 300px;
+        background-color: #f5f5f5;
+        border: 2px solid #333;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 10px;
+    }
+    
+    .ph-scale {
+        width: 30px;
+        height: 200px;
+        background: linear-gradient(to bottom, #ff0000, #ff9800, #ffeb3b, #8bc34a, #2196f3, #3f51b5);
+        border-radius: 5px;
+        position: relative;
+    }
+    
+    .ph-indicator {
+        position: absolute;
+        left: -5px;
+        width: 40px;
+        height: 5px;
+        background-color: #000;
+        transform: translateY(-50%);
+    }
+    
+    .ph-value {
+        margin-top: 10px;
+        font-weight: bold;
+        font-size: 18px;
+    }
+    
+    .chemical-equation {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-size: 18px;
+        font-weight: bold;
+    }
+    
+    .reaction-arrow {
+        margin: 0 10px;
+    }
+    
+    .hidden {
+        display: none;
+    }
+    
+    .label {
+        position: absolute;
+        bottom: -30px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-weight: bold;
+    }
+    
+    .experiment-status {
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 24px;
+        font-weight: bold;
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 10px 20px;
+        border-radius: 10px;
+        z-index: 100;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'simlab:home' %}">Simulations</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'simlab:subject_simulations' simulation.experiment.subject.slug %}">{{ simulation.experiment.subject.name }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ simulation.title }}</li>
+        </ol>
+    </nav>
+
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="mb-3">{{ simulation.title }}</h1>
+            <div class="d-flex align-items-center mb-4">
+                <span class="badge bg-success me-2">
+                    {{ simulation.experiment.subject.name }}
+                </span>
+                <span class="badge bg-light text-dark me-2">
+                    {{ simulation.experiment.grade.number }}-sinf
+                </span>
+                <span class="badge bg-light text-dark">
+                    {{ simulation.simulation_type.name }}
+                </span>
+            </div>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <a href="{% url 'simlab:home' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Orqaga
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Simulation Canvas -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-3">
+                    <div class="simulation-container" id="simulation-container">
+                        <div class="experiment-status" id="experiment-status">Tajriba boshlash uchun "Boshlash" tugmasini bosing</div>
+                        
+                        <!-- Beakers -->
+                        <div class="beaker beaker-left" id="acid-beaker">
+                            <div class="liquid acid-liquid"></div>
+                            <div class="label">HCl (kislota)</div>
+                        </div>
+                        
+                        <div class="beaker beaker-right" id="base-beaker">
+                            <div class="liquid base-liquid"></div>
+                            <div class="label">NaOH (ishqor)</div>
+                        </div>
+                        
+                        <div class="beaker beaker-center hidden" id="reaction-beaker">
+                            <div class="liquid mixed-liquid"></div>
+                            <div class="label">Reaksiya</div>
+                        </div>
+                        
+                        <!-- pH Meter -->
+                        <div class="ph-meter">
+                            <div>pH</div>
+                            <div class="ph-scale">
+                                <div class="ph-indicator" id="ph-indicator" style="top: 50%;"></div>
+                            </div>
+                            <div class="ph-value" id="ph-value">7.0</div>
+                        </div>
+                        
+                        <!-- Chemical Equation -->
+                        <div class="chemical-equation hidden" id="chemical-equation">
+                            HCl + NaOH <span class="reaction-arrow">→</span> NaCl + H<sub>2</sub>O
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Simulation Controls -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h4 class="mb-3">Tajriba boshqaruvi</h4>
+                    <div class="d-flex gap-2 mb-4">
+                        <button id="start-btn" class="btn btn-primary">
+                            <i class="bi bi-play-fill me-1"></i> Boshlash
+                        </button>
+                        <button id="pause-btn" class="btn btn-secondary" disabled>
+                            <i class="bi bi-pause-fill me-1"></i> To'xtatish
+                        </button>
+                        <button id="reset-btn" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-counterclockwise me-1"></i> Qayta boshlash
+                        </button>
+                    </div>
+                    
+                    <h5 class="mb-3">Parametrlar</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="acid-concentration" class="form-label">Kislota konsentratsiyasi</label>
+                            <input type="range" class="form-range parameter-slider" id="acid-concentration" min="0.1" max="1" step="0.1" value="0.5">
+                            <div class="d-flex justify-content-between">
+                                <span class="small text-muted">Past</span>
+                                <span class="small text-muted">Yuqori</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="base-concentration" class="form-label">Ishqor konsentratsiyasi</label>
+                            <input type="range" class="form-range parameter-slider" id="base-concentration" min="0.1" max="1" step="0.1" value="0.5">
+                            <div class="d-flex justify-content-between">
+                                <span class="small text-muted">Past</span>
+                                <span class="small text-muted">Yuqori</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Simulation Info -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <ul class="nav nav-tabs" id="infoTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab" aria-controls="description" aria-selected="true">Tavsif</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="instructions-tab" data-bs-toggle="tab" data-bs-target="#instructions" type="button" role="tab" aria-controls="instructions" aria-selected="false">Ko'rsatmalar</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="theory-tab" data-bs-toggle="tab" data-bs-target="#theory" type="button" role="tab" aria-controls="theory" aria-selected="false">Nazariya</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content p-3" id="infoTabsContent">
+                        <div class="tab-pane fade show active" id="description" role="tabpanel" aria-labelledby="description-tab">
+                            <p>Bu tajriba kislota va ishqor o'rtasidagi reaksiyani ko'rsatadi. Kislota (HCl) va ishqor (NaOH) o'zaro ta'sirlashganda, tuz (NaCl) va suv (H₂O) hosil bo'ladi.</p>
+                            <p>Tajriba davomida pH ko'rsatkichi o'zgarishini kuzating va reaksiya natijasida hosil bo'lgan mahsulotlarni o'rganing.</p>
+                        </div>
+                        <div class="tab-pane fade" id="instructions" role="tabpanel" aria-labelledby="instructions-tab">
+                            <ol>
+                                <li class="mb-2">"Boshlash" tugmasini bosing va kislota va ishqor o'rtasidagi reaksiyani kuzating.</li>
+                                <li class="mb-2">Kislota va ishqor konsentratsiyalarini o'zgartirish uchun slayderni suring.</li>
+                                <li class="mb-2">pH ko'rsatkichini kuzating - u eritmaning kislotalik yoki ishqoriylik darajasini ko'rsatadi.</li>
+                                <li class="mb-2">Reaksiya tenglamasini o'rganing: HCl + NaOH → NaCl + H₂O</li>
+                                <li class="mb-2">Tajribani qayta boshlash uchun "Qayta boshlash" tugmasini bosing.</li>
+                            </ol>
+                        </div>
+                        <div class="tab-pane fade" id="theory" role="tabpanel" aria-labelledby="theory-tab">
+                            <h5>Kislota-ishqor reaksiyalari</h5>
+                            <p>Kislota va ishqorlar kimyoviy moddalarning ikki muhim sinfidir. Ular o'zaro ta'sirlashganda, neytrallanish reaksiyasi sodir bo'ladi, natijada suv va tuz hosil bo'ladi.</p>
+                            <p>pH shkalasi eritmaning kislotalik yoki ishqoriylik darajasini o'lchaydi, 0 dan 14 gacha:</p>
+                            <ul>
+                                <li>pH &lt; 7: Kislotali</li>
+                                <li>pH = 7: Neytral</li>
+                                <li>pH &gt; 7: Ishqoriy</li>
+                            </ul>
+                            <p>Kislota-ishqor reaksiyasi:</p>
+                            <p><strong>HCl + NaOH → NaCl + H₂O</strong></p>
+                            <p>Bu reaksiyada vodorod xlorid (HCl) va natriy gidroksid (NaOH) o'zaro ta'sirlashib, natriy xlorid (NaCl) va suv (H₂O) hosil qiladi.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Questions -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h4 class="mb-3">Muhokama savollari</h4>
+                    <div class="accordion" id="questionsAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="question1">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#answer1" aria-expanded="false" aria-controls="answer1">
+                                    Kislota konsentratsiyasini o'zgartirish pH ga qanday ta'sir qiladi?
+                                </button>
+                            </h2>
+                            <div id="answer1" class="accordion-collapse collapse" aria-labelledby="question1" data-bs-parent="#questionsAccordion">
+                                <div class="accordion-body">
+                                    <p>Kislota konsentratsiyasini oshirish pH qiymatini pasaytiradi, ya'ni eritma yanada kislotaliroq bo'ladi. Kislota konsentratsiyasi slayderni sozlang va pH ko'rsatkichini kuzating.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="question2">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#answer2" aria-expanded="false" aria-controls="answer2">
+                                    Teng miqdordagi kislota va ishqor aralashtirilganda nima sodir bo'ladi?
+                                </button>
+                            </h2>
+                            <div id="answer2" class="accordion-collapse collapse" aria-labelledby="question2" data-bs-parent="#questionsAccordion">
+                                <div class="accordion-body">
+                                    <p>Bir xil konsentratsiyaga ega bo'lgan teng miqdordagi kislota va ishqor aralashtirilganda, ular bir-birini neytrallaydi, natijada pH 7 bo'lgan neytral eritma hosil bo'ladi.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="question3">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#answer3" aria-expanded="false" aria-controls="answer3">
+                                    Kislota-ishqor reaksiyasining amaliy ahamiyati qanday?
+                                </button>
+                            </h2>
+                            <div id="answer3" class="accordion-collapse collapse" aria-labelledby="question3" data-bs-parent="#questionsAccordion">
+                                <div class="accordion-body">
+                                    <p>Kislota-ishqor reaksiyalari kundalik hayotda keng qo'llaniladi. Masalan, oshqozon kislotasini neytrallash uchun antatsidlar ishlatiladi, tuproq pH ni sozlash uchun qishloq xo'jaligida qo'llaniladi, va ko'plab sanoat jarayonlarida muhim rol o'ynaydi.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Simulation state
+    let simulationRunning = false;
+    let acidConcentration = 0.5;
+    let baseConcentration = 0.5;
+    let currentPH = 7.0;
+    let particles = [];
+    let animationFrameId = null;
+    
+    // DOM elements
+    const simulationContainer = document.getElementById('simulation-container');
+    const acidBeaker = document.getElementById('acid-beaker');
+    const baseBeaker = document.getElementById('base-beaker');
+    const reactionBeaker = document.getElementById('reaction-beaker');
+    const phIndicator = document.getElementById('ph-indicator');
+    const phValue = document.getElementById('ph-value');
+    const chemicalEquation = document.getElementById('chemical-equation');
+    const experimentStatus = document.getElementById('experiment-status');
+    const startBtn = document.getElementById('start-btn');
+    const pauseBtn = document.getElementById('pause-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const acidConcentrationSlider = document.getElementById('acid-concentration');
+    const baseConcentrationSlider = document.getElementById('base-concentration');
+    
+    // Initialize parameters
+    acidConcentration = parseFloat(acidConcentrationSlider.value);
+    baseConcentration = parseFloat(baseConcentrationSlider.value);
+    
+    // Event listeners
+    startBtn.addEventListener('click', startSimulation);
+    pauseBtn.addEventListener('click', pauseSimulation);
+    resetBtn.addEventListener('click', resetSimulation);
+    acidConcentrationSlider.addEventListener('input', updateParameters);
+    baseConcentrationSlider.addEventListener('input', updateParameters);
+    
+    // Update parameters
+    function updateParameters() {
+        acidConcentration = parseFloat(acidConcentrationSlider.value);
+        baseConcentration = parseFloat(baseConcentrationSlider.value);
+        
+        // Update pH based on concentrations
+        updatePH();
+    }
+    
+    // Update pH display
+    function updatePH() {
+        // Calculate pH based on relative concentrations
+        // This is a simplified model for educational purposes
+        const ratio = acidConcentration / baseConcentration;
+        
+        if (ratio === 1) {
+            currentPH = 7.0; // Neutral
+        } else if (ratio > 1) {
+            // More acidic
+            currentPH = 7.0 - (3 * (ratio - 1));
+            currentPH = Math.max(1, currentPH);
+        } else {
+            // More basic
+            currentPH = 7.0 + (3 * (1/ratio - 1));
+            currentPH = Math.min(14, currentPH);
+        }
+        
+        // Update pH display
+        phValue.textContent = currentPH.toFixed(1);
+        
+        // Update pH indicator position (0 = pH 14, 100% = pH 0)
+        const position = 100 - ((currentPH / 14) * 100);
+        phIndicator.style.top = `${position}%`;
+    }
+    
+    // Create a particle
+    function createParticle(type, x, y) {
+        const particle = document.createElement('div');
+        particle.className = `particle ${type}-particle`;
+        particle.style.left = `${x}px`;
+        particle.style.top = `${y}px`;
+        simulationContainer.appendChild(particle);
+        
+        return {
+            element: particle,
+            x: x,
+            y: y,
+            vx: (Math.random() - 0.5) * 2,
+            vy: (Math.random() - 0.5) * 2,
+            type: type
+        };
+    }
+    
+    // Start simulation
+    function startSimulation() {
+        if (simulationRunning) return;
+        
+        simulationRunning = true;
+        startBtn.disabled = true;
+        pauseBtn.disabled = false;
+        
+        // Show reaction beaker and chemical equation
+        reactionBeaker.classList.remove('hidden');
+        chemicalEquation.classList.remove('hidden');
+        
+        // Update status
+        experimentStatus.textContent = 'Tajriba boshlandi';
+        
+        // Create initial particles
+        createInitialParticles();
+        
+        // Start animation
+        animate();
+        
+        // Save progress
+        saveProgress();
+    }
+    
+    // Create initial particles
+    function createInitialParticles() {
+        // Clear existing particles
+        particles.forEach(p => p.element.remove());
+        particles = [];
+        
+        // Create acid particles
+        const acidCount = Math.floor(acidConcentration * 30);
+        for (let i = 0; i < acidCount; i++) {
+            const x = acidBeaker.offsetLeft + 20 + Math.random() * (acidBeaker.offsetWidth - 40);
+            const y = acidBeaker.offsetTop + 50 + Math.random() * (acidBeaker.offsetHeight - 100);
+            particles.push(createParticle('acid', x, y));
+        }
+        
+        // Create base particles
+        const baseCount = Math.floor(baseConcentration * 30);
+        for (let i = 0; i < baseCount; i++) {
+            const x = baseBeaker.offsetLeft + 20 + Math.random() * (baseBeaker.offsetWidth - 40);
+            const y = baseBeaker.offsetTop + 50 + Math.random() * (baseBeaker.offsetHeight - 100);
+            particles.push(createParticle('base', x, y));
+        }
+    }
+    
+    // Animation loop
+    function animate() {
+        if (!simulationRunning) return;
+        
+        // Move particles
+        particles.forEach(particle => {
+            // Update position
+            particle.x += particle.vx;
+            particle.y += particle.vy;
+            
+            // Apply simple physics (bounce off walls)
+            if (particle.x < 0 || particle.x > simulationContainer.offsetWidth) {
+                particle.vx *= -1;
+            }
+            if (particle.y < 0 || particle.y > simulationContainer.offsetHeight) {
+                particle.vy *= -1;
+            }
+            
+            // Update DOM element position
+            particle.element.style.left = `${particle.x}px`;
+            particle.element.style.top = `${particle.y}px`;
+        });
+        
+        // Check for collisions between acid and base particles
+        for (let i = 0; i < particles.length; i++) {
+            for (let j = i + 1; j < particles.length; j++) {
+                const p1 = particles[i];
+                const p2 = particles[j];
+                
+                // Skip if particles are of the same type
+                if (p1.type === p2.type) continue;
+                
+                // Check if one is acid and one is base
+                if ((p1.type === 'acid' && p2.type === 'base') || 
+                    (p1.type === 'base' && p2.type === 'acid')) {
+                    
+                    // Calculate distance
+                    const dx = p1.x - p2.x;
+                    const dy = p1.y - p2.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    // If particles are close enough, react
+                    if (distance < 15) {
+                        // Remove the colliding particles
+                        p1.element.remove();
+                        p2.element.remove();
+                        
+                        // Create reaction products (salt and water)
+                        const saltX = (p1.x + p2.x) / 2;
+                        const saltY = (p1.y + p2.y) / 2;
+                        particles.push(createParticle('salt', saltX, saltY));
+                        
+                        const waterX = saltX + (Math.random() - 0.5) * 20;
+                        const waterY = saltY + (Math.random() - 0.5) * 20;
+                        particles.push(createParticle('water', waterX, waterY));
+                        
+                        // Remove the original particles from the array
+                        particles.splice(j, 1);
+                        particles.splice(i, 1);
+                        
+                        // Update pH
+                        updatePH();
+                        
+                        // Break out of the loops since we modified the array
+                        i--;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        // Continue animation
+        animationFrameId = requestAnimationFrame(animate);
+    }
+    
+    // Pause simulation
+    function pauseSimulation() {
+        simulationRunning = false;
+        pauseBtn.disabled = true;
+        startBtn.disabled = false;
+        
+        // Cancel animation frame
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+        }
+        
+        // Update status
+        experimentStatus.textContent = 'Tajriba to\'xtatildi';
+    }
+    
+    // Reset simulation
+    function resetSimulation() {
+        // Stop animation
+        simulationRunning = false;
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+        }
+        
+        // Reset UI
+        startBtn.disabled = false;
+        pauseBtn.disabled = true;
+        reactionBeaker.classList.add('hidden');
+        chemicalEquation.classList.add('hidden');
+        
+        // Clear particles
+        particles.forEach(p => p.element.remove());
+        particles = [];
+        
+        // Reset pH
+        currentPH = 7.0;
+        phValue.textContent = currentPH.toFixed(1);
+        phIndicator.style.top = '50%';
+        
+        // Update status
+        experimentStatus.textContent = 'Tajriba boshlash uchun "Boshlash" tugmasini bosing';
+    }
+    
+    // Save progress
+    function saveProgress(completed = false) {
+        {% if user.is_authenticated %}
+        fetch('{% url "simlab:save_progress" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                simulation_id: {{ simulation.id }},
+                completed: completed,
+                data: {
+                    acidConcentration: acidConcentration,
+                    baseConcentration: baseConcentration,
+                    currentPH: currentPH
+                }
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Progress saved:', data);
+        })
+        .catch(error => {
+            console.error('Error saving progress:', error);
+        });
+        {% endif %}
+    }
+    
+    // Mark as completed after 30 seconds of simulation
+    let completionTimer = null;
+    startBtn.addEventListener('click', function() {
+        if (completionTimer) {
+            clearTimeout(completionTimer);  function() {
+        if (completionTimer) {
+            clearTimeout(completionTimer);
+        }
+        
+        completionTimer = setTimeout(function() {
+            if (simulationRunning) {
+                saveProgress(true);
+                experimentStatus.textContent = 'Tajriba muvaffaqiyatli yakunlandi!';
+                experimentStatus.style.backgroundColor = 'rgba(25, 135, 84, 0.8)';
+                experimentStatus.style.color = 'white';
+            }
+        }, 30000); // Mark as completed after 30 seconds
+    });
+    
+    // Initialize the simulation
+    resetSimulation();
+    
+    // Resize handler
+    window.addEventListener('resize', function() {
+        // Recalculate positions if needed
+        if (simulationRunning) {
+            pauseSimulation();
+            startSimulation();
+        }
+    });
+</script>
+{% endblock %}

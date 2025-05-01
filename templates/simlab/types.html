@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Simulation Types - EduZone{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'simlab:home' %}">Simulations</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Simulation Types</li>
+        </ol>
+    </nav>
+
+    <h1 class="mb-4">Simulation Technologies</h1>
+    <p class="lead mb-5">Our virtual laboratory uses different technologies to create interactive simulations. Learn more about each technology below.</p>
+
+    <div class="row g-4">
+        {% for sim_type in simulation_types %}
+        <div class="col-md-6">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle p-3 me-3 
+                            {% if sim_type.slug == 'canvas-2d' %}bg-success bg-opacity-10
+                            {% elif sim_type.slug == 'webgl' %}bg-primary bg-opacity-10
+                            {% elif sim_type.slug == 'threejs' %}bg-warning bg-opacity-10
+                            {% else %}bg-info bg-opacity-10{% endif %}">
+                            <i class="bi bi-{{ sim_type.icon }} 
+                                {% if sim_type.slug == 'canvas-2d' %}text-success
+                                {% elif sim_type.slug == 'webgl' %}text-primary
+                                {% elif sim_type.slug == 'threejs' %}text-warning
+                                {% else %}text-info{% endif %}" 
+                                style="font-size: 1.5rem;"></i>
+                        </div>
+                        <h2 class="h4 mb-0">{{ sim_type.name }}</h2>
+                    </div>
+                    
+                    <p class="mb-4">{{ sim_type.description }}</p>
+                    
+                    {% if sim_type.slug == 'canvas-2d' %}
+                    <div class="mb-4">
+                        <h3 class="h5">Features:</h3>
+                        <ul class="list-unstyled">
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Fast 2D rendering</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Works on all devices</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Perfect for particle simulations</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Interactive elements</li>
+                        </ul>
+                    </div>
+                    {% elif sim_type.slug == 'webgl' %}
+                    <div class="mb-4">
+                        <h3 class="h5">Features:</h3>
+                        <ul class="list-unstyled">
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Hardware-accelerated 3D graphics</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Complex visual effects</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> High performance</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Modern browser support</li>
+                        </ul>
+                    </div>
+                    {% elif sim_type.slug == 'threejs' %}
+                    <div class="mb-4">
+                        <h3 class="h5">Features:</h3>
+                        <ul class="list-unstyled">
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Easy-to-use 3D library</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Advanced 3D models</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Physics simulations</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Camera controls</li>
+                        </ul>
+                    </div>
+                    {% elif sim_type.slug == 'vpython' %}
+                    <div class="mb-4">
+                        <h3 class="h5">Features:</h3>
+                        <ul class="list-unstyled">
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Python-based simulations</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Easy to understand code</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Scientific visualization</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Educational focus</li>
+                        </ul>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="text-center">
+                        <a href="#" class="btn btn-outline-primary">View Simulations</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

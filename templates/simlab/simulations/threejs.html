@@ -1,0 +1,341 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ simulation.title }} - EduZone{% endblock %}
+
+{% block extra_css %}
+<style>
+    .simulation-container {
+        position: relative;
+        width: 100%;
+        height: 500px;
+        background-color: #f8f9fa;
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+    
+    canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+    
+    .control-panel {
+        background-color: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+    }
+    
+    .parameter-slider {
+        width: 100%;
+    }
+    
+    .tab-content {
+        min-height: 300px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'simlab:home' %}">Simulations</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'simlab:subject_simulations' simulation.experiment.subject.slug %}">{{ simulation.experiment.subject.name }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ simulation.title }}</li>
+        </ol>
+    </nav>
+
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="mb-3">{{ simulation.title }}</h1>
+            <div class="d-flex align-items-center mb-4">
+                <span class="badge 
+                    {% if simulation.experiment.subject.name == 'Kimyo' %}bg-success
+                    {% elif simulation.experiment.subject.name == 'Fizika' %}bg-primary
+                    {% elif simulation.experiment.subject.name == 'Matematika' %}bg-warning
+                    {% else %}bg-secondary{% endif %} me-2">
+                    {{ simulation.experiment.subject.name }}
+                </span>
+                <span class="badge bg-light text-dark me-2">
+                    {{ simulation.experiment.grade.number }}-sinf
+                </span>
+                <span class="badge bg-light text-dark">
+                    {{ simulation.simulation_type.name }}
+                </span>
+            </div>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <a href="{% url 'simlab:home' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Back to Simulations
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Simulation Canvas -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-3">
+                    <div class="simulation-container" id="simulation-container">
+                        <!-- Three.js will render here -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Simulation Controls -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h4 class="mb-3">Simulation Controls</h4>
+                    <div class="d-flex gap-2 mb-4">
+                        <button id="toggle-rotation-btn" class="btn btn-primary">
+                            <i class="bi bi-arrow-repeat me-1"></i> Toggle Rotation
+                        </button>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="moleculeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                Select Molecule
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="moleculeDropdown">
+                                <li><a class="dropdown-item" href="#" data-molecule="water">Water (H₂O)</a></li>
+                                <li><a class="dropdown-item" href="#" data-molecule="methane">Methane (CH₄)</a></li>
+                                <li><a class="dropdown-item" href="#" data-molecule="carbon-dioxide">Carbon Dioxide (CO₂)</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <h5 class="mb-3">Parameters</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="rotation-speed" class="form-label">Rotation Speed</label>
+                            <input type="range" class="form-range parameter-slider" id="rotation-speed" min="0" max="0.02" step="0.001" value="0.005">
+                            <div class="d-flex justify-content-between">
+                                <span class="small text-muted">Slow</span>
+                                <span class="small text-muted">Fast</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch mt-4">
+                                <input class="form-check-input" type="checkbox" id="show-labels" checked>
+                                <label class="form-check-label" for="show-labels">Show Element Labels</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Simulation Info -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <ul class="nav nav-tabs" id="infoTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab" aria-controls="description" aria-selected="true">Description</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="instructions-tab" data-bs-toggle="tab" data-bs-target="#instructions" type="button" role="tab" aria-controls="instructions" aria-selected="false">Instructions</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="theory-tab" data-bs-toggle="tab" data-bs-target="#theory" type="button" role="tab" aria-controls="theory" aria-selected="false">Theory</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content p-3" id="infoTabsContent">
+                        <div class="tab-pane fade show active" id="description" role="tabpanel" aria-labelledby="description-tab">
+                            <p>{{ simulation.description }}</p>
+                            <p>This 3D simulation allows you to visualize molecular structures using Three.js. You can rotate, zoom, and examine different molecules to understand their spatial arrangement.</p>
+                        </div>
+                        <div class="tab-pane fade" id="instructions" role="tabpanel" aria-labelledby="instructions-tab">
+                            <ol>
+                                {% for line in simulation.instructions.split|slice:"1:" %}
+                                <li class="mb-2">{{ line }}</li>
+                                {% endfor %}
+                            </ol>
+                            <p class="mt-3">Additional controls:</p>
+                            <ul>
+                                <li>Left-click and drag to rotate the view</li>
+                                <li>Right-click and drag to pan</li>
+                                <li>Scroll to zoom in/out</li>
+                            </ul>
+                        </div>
+                        <div class="tab-pane fade" id="theory" role="tabpanel" aria-labelledby="theory-tab">
+                            <h5>Molecular Structures</h5>
+                            <p>Molecules are groups of atoms bonded together, representing the smallest fundamental unit of a chemical compound that can take part in a chemical reaction.</p>
+                            
+                            <h6 class="mt-3">Water (H₂O)</h6>
+                            <p>Water consists of one oxygen atom bonded to two hydrogen atoms. The molecule has a bent shape due to the lone pairs of electrons on the oxygen atom, with a bond angle of approximately 104.5°.</p>
+                            
+                            <h6 class="mt-3">Methane (CH₄)</h6>
+                            <p>Methane consists of one carbon atom bonded to four hydrogen atoms. The molecule has a tetrahedral shape with bond angles of approximately 109.5°.</p>
+                            
+                            <h6 class="mt-3">Carbon Dioxide (CO₂)</h6>
+                            <p>Carbon dioxide consists of one carbon atom bonded to two oxygen atoms. The molecule has a linear shape with a bond angle of 180°.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Molecule Information -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h4 class="mb-3">Molecule Information</h4>
+                    
+                    <div id="water-info">
+                        <h5>Water (H₂O)</h5>
+                        <p>Water is a polar molecule with a bent shape. The oxygen atom has a partial negative charge, while the hydrogen atoms have partial positive charges.</p>
+                        <ul>
+                            <li><strong>Formula:</strong> H₂O</li>
+                            <li><strong>Bond Angle:</strong> 104.5°</li>
+                            <li><strong>Bond Length (O-H):</strong> 0.96 Å</li>
+                            <li><strong>Polarity:</strong> Polar</li>
+                        </ul>
+                    </div>
+                    
+                    <div id="methane-info" style="display: none;">
+                        <h5>Methane (CH₄)</h5>
+                        <p>Methane is a nonpolar molecule with a tetrahedral shape. It is the simplest alkane and the main component of natural gas.</p>
+                        <ul>
+                            <li><strong>Formula:</strong> CH₄</li>
+                            <li><strong>Bond Angle:</strong> 109.5°</li>
+                            <li><strong>Bond Length (C-H):</strong> 1.09 Å</li>
+                            <li><strong>Polarity:</strong> Nonpolar</li>
+                        </ul>
+                    </div>
+                    
+                    <div id="carbon-dioxide-info" style="display: none;">
+                        <h5>Carbon Dioxide (CO₂)</h5>
+                        <p>Carbon dioxide is a linear molecule with double bonds between the carbon and oxygen atoms. It is a greenhouse gas and is used by plants in photosynthesis.</p>
+                        <ul>
+                            <li><strong>Formula:</strong> CO₂</li>
+                            <li><strong>Bond Angle:</strong> 180°</li>
+                            <li><strong>Bond Length (C=O):</strong> 1.16 Å</li>
+                            <li><strong>Polarity:</strong> Nonpolar</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Three.js library -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/FontLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/geometries/TextGeometry.js"></script>
+
+<script>
+    // Load simulation code
+    const simulationCode = `{{ simulation.code_js|escapejs }}`;
+    
+    // Create script element and append to document
+    const script = document.createElement('script');
+    script.textContent = simulationCode;
+    document.body.appendChild(script);
+    
+    // Set up UI controls
+    document.getElementById('toggle-rotation-btn').addEventListener('click', function() {
+        if (window.simulationAPI && window.simulationAPI.toggleRotation) {
+            window.simulationAPI.toggleRotation();
+        }
+    });
+    
+    // Set up molecule selection
+    document.querySelectorAll('[data-molecule]').forEach(item => {
+        item.addEventListener('click', event => {
+            const moleculeType = event.target.getAttribute('data-molecule');
+            
+            if (window.simulationAPI && window.simulationAPI.changeMolecule) {
+                window.simulationAPI.changeMolecule(moleculeType);
+            }
+            
+            // Update molecule info display
+            document.getElementById('water-info').style.display = 'none';
+            document.getElementById('methane-info').style.display = 'none';
+            document.getElementById('carbon-dioxide-info').style.display = 'none';
+            
+            document.getElementById(`${moleculeType}-info`).style.display = 'block';
+            
+            // Update dropdown button text
+            const moleculeNames = {
+                'water': 'Water (H₂O)',
+                'methane': 'Methane (CH₄)',
+                'carbon-dioxide': 'Carbon Dioxide (CO₂)'
+            };
+            
+            document.getElementById('moleculeDropdown').textContent = moleculeNames[moleculeType];
+        });
+    });
+    
+    // Set up rotation speed slider
+    document.getElementById('rotation-speed').addEventListener('input', function() {
+        if (window.simulationAPI && window.simulationAPI.setRotationSpeed) {
+            window.simulationAPI.setRotationSpeed(parseFloat(this.value));
+        }
+    });
+    
+    // Set up show labels toggle
+    document.getElementById('show-labels').addEventListener('change', function() {
+        const currentMolecule = document.getElementById('moleculeDropdown').textContent;
+        const moleculeMap = {
+            'Water (H₂O)': 'water',
+            'Methane (CH₄)': 'methane',
+            'Carbon Dioxide (CO₂)': 'carbon-dioxide'
+        };
+        
+        if (window.simulationAPI && window.simulationAPI.changeMolecule) {
+            // Recreate the molecule with updated label setting
+            window.simulationAPI.changeMolecule(moleculeMap[currentMolecule] || 'water');
+        }
+    });
+    
+    // Save progress
+    function saveProgress(completed = false) {
+        {% if user.is_authenticated %}
+        fetch('{% url "simlab:save_progress" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                simulation_id: {{ simulation.id }},
+                completed: completed,
+                data: {}
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Progress saved:', data);
+        })
+        .catch(error => {
+            console.error('Error saving progress:', error);
+        });
+        {% endif %}
+    }
+    
+    // Auto-save progress when changing molecules
+    document.querySelectorAll('[data-molecule]').forEach(item => {
+        item.addEventListener('click', () => {
+            saveProgress();
+        });
+    });
+    
+    // Mark as completed
+    function markAsCompleted() {
+        saveProgress(true);
+        alert('Congratulations! You have completed this simulation.');
+    }
+    
+    // Add completion button
+    const controlsDiv = document.querySelector('.d-flex.gap-2.mb-4');
+    const completeButton = document.createElement('button');
+    completeButton.className = 'btn btn-success ms-auto';
+    completeButton.innerHTML = '<i class="bi bi-check-circle me-1"></i> Mark as Completed';
+    completeButton.addEventListener('click', markAsCompleted);
+    controlsDiv.appendChild(completeButton);
+</script>
+{% endblock %}

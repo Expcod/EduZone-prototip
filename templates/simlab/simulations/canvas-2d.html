@@ -1,0 +1,442 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ simulation.title }} - EduZone{% endblock %}
+
+{% block extra_css %}
+<style>
+    .simulation-container {
+        position: relative;
+        width: 100%;
+        height: 500px;
+        background-color: #f8f9fa;
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+    
+    #simulation-canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+    
+    .control-panel {
+        background-color: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+    }
+    
+    .parameter-slider {
+        width: 100%;
+    }
+    
+    .tab-content {
+        min-height: 300px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'simlab:home' %}">Simulations</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'simlab:subject_simulations' simulation.experiment.subject.slug %}">{{ simulation.experiment.subject.name }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ simulation.title }}</li>
+        </ol>
+    </nav>
+
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="mb-3">{{ simulation.title }}</h1>
+            <div class="d-flex align-items-center mb-4">
+                <span class="badge 
+                    {% if simulation.experiment.subject.name == 'Kimyo' %}bg-success
+                    {% elif simulation.experiment.subject.name == 'Fizika' %}bg-primary
+                    {% elif simulation.experiment.subject.name == 'Matematika' %}bg-warning
+                    {% else %}bg-secondary{% endif %} me-2">
+                    {{ simulation.experiment.subject.name }}
+                </span>
+                <span class="badge bg-light text-dark me-2">
+                    {{ simulation.experiment.grade.number }}-sinf
+                </span>
+                <span class="badge bg-light text-dark">
+                    {{ simulation.simulation_type.name }}
+                </span>
+            </div>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <a href="{% url 'simlab:home' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Back to Simulations
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Simulation Canvas -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-3">
+                    <div class="simulation-container" id="simulation-container">
+                        <canvas id="simulation-canvas" width="800" height="500"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Simulation Controls -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h4 class="mb-3">Simulation Controls</h4>
+                    <div class="d-flex gap-2 mb-4">
+                        <button id="start-btn" class="btn btn-primary">
+                            <i class="bi bi-play-fill me-1"></i> Start
+                        </button>
+                        <button id="pause-btn" class="btn btn-secondary">
+                            <i class="bi bi-pause-fill me-1"></i> Pause
+                        </button>
+                        <button id="reset-btn" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+                        </button>
+                    </div>
+                    
+                    <h5 class="mb-3">Parameters</h5>
+                    <div class="row g-3">
+                        {% if simulation.experiment.subject.name == 'Kimyo' %}
+                            <!-- Chemistry parameters -->
+                            <div class="col-md-6">
+                                <label for="acid-concentration" class="form-label">Acid Concentration</label>
+                                <input type="range" class="form-range parameter-slider" id="acid-concentration" min="0.1" max="1" step="0.1" value="0.5">
+                                <div class="d-flex justify-content-between">
+                                    <span class="small text-muted">Low</span>
+                                    <span class="small text-muted">High</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="base-concentration" class="form-label">Base Concentration</label>
+                                <input type="range" class="form-range parameter-slider" id="base-concentration" min="0.1" max="1" step="0.1" value="0.5">
+                                <div class="d-flex justify-content-between">
+                                    <span class="small text-muted">Low</span>
+                                    <span class="small text-muted">High</span>
+                                </div>
+                            </div>
+                        {% elif simulation.experiment.subject.name == 'Fizika' %}
+                            <!-- Physics parameters -->
+                            <div class="col-md-6">
+                                <label for="voltage" class="form-label">Voltage (V)</label>
+                                <input type="range" class="form-range parameter-slider" id="voltage" min="1" max="20" step="1" value="9">
+                                <div class="d-flex justify-content-between">
+                                    <span class="small text-muted">1V</span>
+                                    <span class="small text-muted">20V</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="resistance" class="form-label">Resistance (Ω)</label>
+                                <input type="range" class="form-range parameter-slider" id="resistance" min="1" max="50" step="1" value="10">
+                                <div class="d-flex justify-content-between">
+                                    <span class="small text-muted">1Ω</span>
+                                    <span class="small text-muted">50Ω</span>
+                                </div>
+                            </div>
+                        {% else %}
+                            <!-- Default parameters -->
+                            <div class="col-md-6">
+                                <label for="speed" class="form-label">Speed</label>
+                                <input type="range" class="form-range parameter-slider" id="speed" min="0.1" max="2" step="0.1" value="1">
+                                <div class="d-flex justify-content-between">
+                                    <span class="small text-muted">Slow</span>
+                                    <span class="small text-muted">Fast</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="particles" class="form-label">Particles</label>
+                                <input type="range" class="form-range parameter-slider" id="particles" min="10" max="100" step="10" value="50">
+                                <div class="d-flex justify-content-between">
+                                    <span class="small text-muted">Few</span>
+                                    <span class="small text-muted">Many</span>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Simulation Info -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <ul class="nav nav-tabs" id="infoTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab" aria-controls="description" aria-selected="true">Description</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="instructions-tab" data-bs-toggle="tab" data-bs-target="#instructions" type="button" role="tab" aria-controls="instructions" aria-selected="false">Instructions</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="theory-tab" data-bs-toggle="tab" data-bs-target="#theory" type="button" role="tab" aria-controls="theory" aria-selected="false">Theory</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content p-3" id="infoTabsContent">
+                        <div class="tab-pane fade show active" id="description" role="tabpanel" aria-labelledby="description-tab">
+                            <p>{{ simulation.description }}</p>
+                            <p>This simulation allows you to explore the concepts of {{ simulation.experiment.title }} through an interactive Canvas-based visualization.</p>
+                        </div>
+                        <div class="tab-pane fade" id="instructions" role="tabpanel" aria-labelledby="instructions-tab">
+                            <ol>
+                                {% for line in simulation.instructions.split|slice:"1:" %}
+                                <li class="mb-2">{{ line }}</li>
+                                {% endfor %}
+                            </ol>
+                        </div>
+                        <div class="tab-pane fade" id="theory" role="tabpanel" aria-labelledby="theory-tab">
+                            {% if simulation.experiment.subject.name == 'Kimyo' %}
+                                <h5>Acid-Base Reactions</h5>
+                                <p>Acids and bases are two related classes of chemicals. When mixed, they undergo a neutralization reaction, producing water and a salt.</p>
+                                <p>The pH scale measures how acidic or basic a solution is, ranging from 0 to 14:</p>
+                                <ul>
+                                    <li>pH < 7: Acidic</li>
+                                    <li>pH = 7: Neutral</li>
+                                    <li>pH > 7: Basic</li>
+                                </ul>
+                            {% elif simulation.experiment.subject.name == 'Fizika' %}
+                                <h5>Electric Circuits</h5>
+                                <p>An electric circuit is a path in which electrons flow from a voltage or current source. Electric current flows when a voltage is applied across electrical conductors.</p>
+                                <p>Ohm's Law states that the current through a conductor between two points is directly proportional to the voltage:</p>
+                                <p><strong>V = I × R</strong></p>
+                                <p>Where V is voltage, I is current, and R is resistance.</p>
+                            {% else %}
+                                <h5>Theoretical Background</h5>
+                                <p>This simulation demonstrates key principles related to {{ simulation.experiment.title }}.</p>
+                                <p>Explore the simulation to observe how different parameters affect the outcome.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Questions -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h4 class="mb-3">Questions to Consider</h4>
+                    <div class="accordion" id="questionsAccordion">
+                        {% if simulation.experiment.subject.name == 'Kimyo' %}
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="question1">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#answer1" aria-expanded="false" aria-controls="answer1">
+                                        How does changing the acid concentration affect the pH?
+                                    </button>
+                                </h2>
+                                <div id="answer1" class="accordion-collapse collapse" aria-labelledby="question1" data-bs-parent="#questionsAccordion">
+                                    <div class="accordion-body">
+                                        <p>Increasing the acid concentration will lower the pH value, making the solution more acidic. Try adjusting the acid concentration slider and observe the pH meter.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="question2">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#answer2" aria-expanded="false" aria-controls="answer2">
+                                        What happens when equal amounts of acid and base are mixed?
+                                    </button>
+                                </h2>
+                                <div id="answer2" class="accordion-collapse collapse" aria-labelledby="question2" data-bs-parent="#questionsAccordion">
+                                    <div class="accordion-body">
+                                        <p>When equal amounts of acid and base with the same concentration are mixed, they neutralize each other, resulting in a neutral solution with a pH of 7.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% elif simulation.experiment.subject.name == 'Fizika' %}
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="question1">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#answer1" aria-expanded="false" aria-controls="answer1">
+                                        How does increasing the voltage affect the current?
+                                    </button>
+                                </h2>
+                                <div id="answer1" class="accordion-collapse collapse" aria-labelledby="question1" data-bs-parent="#questionsAccordion">
+                                    <div class="accordion-body">
+                                        <p>According to Ohm's Law (V = I × R), when resistance remains constant, increasing the voltage will proportionally increase the current. This can be observed by the faster movement of electrons in the circuit.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="question2">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#answer2" aria-expanded="false" aria-controls="answer2">
+                                        What happens to the brightness of the bulb when resistance increases?
+                                    </button>
+                                </h2>
+                                <div id="answer2" class="accordion-collapse collapse" aria-labelledby="question2" data-bs-parent="#questionsAccordion">
+                                    <div class="accordion-body">
+                                        <p>When resistance increases, the current decreases (I = V/R). This results in less power being delivered to the bulb (P = I²R), making it dimmer.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="question1">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#answer1" aria-expanded="false" aria-controls="answer1">
+                                        How do the parameters affect the simulation?
+                                    </button>
+                                </h2>
+                                <div id="answer1" class="accordion-collapse collapse" aria-labelledby="question1" data-bs-parent="#questionsAccordion">
+                                    <div class="accordion-body">
+                                        <p>Try adjusting the parameters and observe how they change the behavior of the simulation. Record your observations and think about the underlying principles.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="question2">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#answer2" aria-expanded="false" aria-controls="answer2">
+                                        Can you predict what will happen if you change multiple parameters at once?
+                                    </button>
+                                </h2>
+                                <div id="answer2" class="accordion-collapse collapse" aria-labelledby="question2" data-bs-parent="#questionsAccordion">
+                                    <div class="accordion-body">
+                                        <p>Make a hypothesis about how changing multiple parameters will affect the simulation. Then test your hypothesis and see if your prediction was correct.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Get canvas and context
+    const canvas = document.getElementById('simulation-canvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Resize canvas to fit container
+    function resizeCanvas() {
+        const container = document.getElementById('simulation-container');
+        canvas.width = container.clientWidth;
+        canvas.height = container.clientHeight;
+    }
+    
+    // Call resize on load and window resize
+    window.addEventListener('load', resizeCanvas);
+    window.addEventListener('resize', resizeCanvas);
+    
+    // Load simulation code
+    const simulationCode = `{{ simulation.code_js|escapejs }}`;
+    
+    // Create script element and append to document
+    const script = document.createElement('script');
+    script.textContent = simulationCode;
+    document.body.appendChild(script);
+    
+    // Set up UI controls
+    document.getElementById('start-btn').addEventListener('click', function() {
+        if (window.simulationAPI && window.simulationAPI.start) {
+            window.simulationAPI.start();
+        }
+    });
+    
+    document.getElementById('pause-btn').addEventListener('click', function() {
+        if (window.simulationAPI && window.simulationAPI.stop) {
+            window.simulationAPI.stop();
+        }
+    });
+    
+    document.getElementById('reset-btn').addEventListener('click', function() {
+        if (window.simulationAPI && window.simulationAPI.start) {
+            window.simulationAPI.start();
+        }
+    });
+    
+    // Set up parameter sliders
+    {% if simulation.experiment.subject.name == 'Kimyo' %}
+        // Chemistry parameters
+        document.getElementById('acid-concentration').addEventListener('input', function() {
+            if (window.simulationAPI && window.simulationAPI.updateParameters) {
+                window.simulationAPI.updateParameters({
+                    acidConcentration: parseFloat(this.value)
+                });
+            }
+        });
+        
+        document.getElementById('base-concentration').addEventListener('input', function() {
+            if (window.simulationAPI && window.simulationAPI.updateParameters) {
+                window.simulationAPI.updateParameters({
+                    baseConcentration: parseFloat(this.value)
+                });
+            }
+        });
+    {% elif simulation.experiment.subject.name == 'Fizika' %}
+        // Physics parameters
+        document.getElementById('voltage').addEventListener('input', function() {
+            if (window.simulationAPI && window.simulationAPI.updateParameters) {
+                window.simulationAPI.updateParameters({
+                    voltage: parseFloat(this.value)
+                });
+            }
+        });
+        
+        document.getElementById('resistance').addEventListener('input', function() {
+            if (window.simulationAPI && window.simulationAPI.updateParameters) {
+                window.simulationAPI.updateParameters({
+                    resistance: parseFloat(this.value)
+                });
+            }
+        });
+    {% else %}
+        // Default parameters
+        document.getElementById('speed').addEventListener('input', function() {
+            if (window.simulationAPI && window.simulationAPI.updateParameters) {
+                window.simulationAPI.updateParameters({
+                    particleSpeed: parseFloat(this.value)
+                });
+            }
+        });
+        
+        document.getElementById('particles').addEventListener('input', function() {
+            if (window.simulationAPI && window.simulationAPI.updateParameters) {
+                window.simulationAPI.updateParameters({
+                    particleCount: parseInt(this.value)
+                });
+            }
+        });
+    {% endif %}
+    
+    // Save progress
+    function saveProgress(completed = false) {
+        {% if user.is_authenticated %}
+        fetch('{% url "simlab:save_progress" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                simulation_id: {{ simulation.id }},
+                completed: completed,
+                data: {}
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Progress saved:', data);
+        })
+        .catch(error => {
+            console.error('Error saving progress:', error);
+        });
+        {% endif %}
+    }
+    
+    // Auto-save progress when starting simulation
+    document.getElementById('start-btn').addEventListener('click', function() {
+        saveProgress();
+    });
+    
+    // Mark as completed
+    function markAsCompleted() {
+        saveProgress(true);
+        alert('Congratulations! You have completed this simulation.');
+    }
+</script>
+{% endblock %}

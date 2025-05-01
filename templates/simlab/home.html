@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load simlab_tags %}  <!-- Add this line -->
+
+{% block title %}Laboratory Simulations - EduZone{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="mb-0">Virtual Laboratory</h1>
+            <p class="text-muted mb-0">Interactive simulations for science experiments</p>
+        </div>
+        <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Featured Simulations -->
+    <div class="mb-5">
+        <h2 class="mb-4">Featured Simulations</h2>
+        <div class="row g-4">
+            {% for simulation in featured_simulations %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm simulation-card">
+                    <div class="card-header bg-white border-0 pt-4 pb-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge 
+                                {% if simulation.experiment.subject.name == 'Kimyo' %}bg-success
+                                {% elif simulation.experiment.subject.name == 'Fizika' %}bg-primary
+                                {% elif simulation.experiment.subject.name == 'Matematika' %}bg-warning
+                                {% else %}bg-secondary{% endif %}">
+                                {{ simulation.experiment.subject.name }}
+                            </span>
+                            <span class="badge bg-light text-dark">
+                                {{ simulation.experiment.grade.number }}-sinf
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <h3 class="h5 mb-3">{{ simulation.title }}</h3>
+                        <p class="text-muted mb-4">{{ simulation.description|truncatechars:100 }}</p>
+                        <a href="{% url 'simlab:run_simulation' simulation.slug %}" class="btn btn-primary w-100">
+                            Start Simulation
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    No simulations available yet. Check back soon!
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Browse by Subject -->
+    <div class="mb-5">
+        <h2 class="mb-4">Browse by Subject</h2>
+        <div class="row g-4">
+            {% for subject in subjects %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm subject-card">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="rounded-circle p-3 
+                                {% if subject.name == 'Kimyo' %}bg-success bg-opacity-10
+                                {% elif subject.name == 'Fizika' %}bg-primary bg-opacity-10
+                                {% elif subject.name == 'Matematika' %}bg-warning bg-opacity-10
+                                {% else %}bg-secondary bg-opacity-10{% endif %}">
+                                <i class="bi bi-{{ subject.icon }} 
+                                    {% if subject.name == 'Kimyo' %}text-success
+                                    {% elif subject.name == 'Fizika' %}text-primary
+                                    {% elif subject.name == 'Matematika' %}text-warning
+                                    {% else %}text-secondary{% endif %}" 
+                                    style="font-size: 1.5rem;"></i>
+                            </div>
+                            <h3 class="h4 mb-0">{{ subject.name }}</h3>
+                        </div>
+                        <p class="text-muted mb-4">Virtual laboratory simulations for {{ subject.name }}</p>
+                        <a href="{% url 'simlab:subject_simulations' subject.slug %}" class="btn btn-outline-primary w-100">
+                            View Simulations
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    No subjects available yet. Check back soon!
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Browse by Grade -->
+    <div>
+        <h2 class="mb-4">Browse by Grade</h2>
+        <div class="row g-4">
+            {% for grade in grades %}
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm grade-card">
+                    <div class="card-body p-4 text-center">
+                        <h3 class="display-4 mb-3">{{ grade.number }}</h3>
+                        <p class="text-muted mb-4">{{ grade.number }}-sinf uchun simulyatsiyalar</p>
+                        <a href="{% url 'simlab:grade_simulations' grade.number %}" class="btn btn-outline-primary w-100">
+                            View Simulations
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    No grades available yet. Check back soon!
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .simulation-card, .subject-card, .grade-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .simulation-card:hover, .subject-card:hover, .grade-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+</style>
+{% endblock %}

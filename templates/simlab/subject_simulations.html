@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ subject.name }} Simulations - EduZone{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'simlab:home' %}">Simulations</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ subject.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="mb-0">{{ subject.name }} Simulations</h1>
+            <p class="text-muted mb-0">Virtual laboratory simulations for {{ subject.name }}</p>
+        </div>
+        <a href="{% url 'simlab:home' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to Simulations
+        </a>
+    </div>
+
+    {% for grade, simulations in simulations_by_grade.items %}
+    <div class="mb-5">
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <div class="rounded-circle p-3 bg-light">
+                <span class="h4 mb-0">{{ grade.number }}</span>
+            </div>
+            <h2 class="mb-0">{{ grade.number }}-sinf</h2>
+        </div>
+        
+        {% if simulations %}
+        <div class="row g-4">
+            {% for simulation in simulations %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm simulation-card">
+                    <div class="card-header bg-white border-0 pt-4 pb-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge 
+                                {% if subject.name == 'Kimyo' %}bg-success
+                                {% elif subject.name == 'Fizika' %}bg-primary
+                                {% elif subject.name == 'Matematika' %}bg-warning
+                                {% else %}bg-secondary{% endif %}">
+                                {{ subject.name }}
+                            </span>
+                            <span class="badge bg-light text-dark">
+                                {{ simulation.simulation_type.name }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <h3 class="h5 mb-3">{{ simulation.title }}</h3>
+                        <p class="text-muted mb-4">{{ simulation.description|truncatechars:100 }}</p>
+                        <a href="{% url 'simlab:run_simulation' simulation.slug %}" class="btn btn-primary w-100">
+                            Start Simulation
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            No simulations available for {{ grade.number }}-sinf yet. Check back soon!
+        </div>
+        {% endif %}
+    </div>
+    {% empty %}
+    <div class="alert alert-info">
+        No simulations available for {{ subject.name }} yet. Check back soon!
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .simulation-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+    }
+    
+    .simulation-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+</style>
+{% endblock %}
