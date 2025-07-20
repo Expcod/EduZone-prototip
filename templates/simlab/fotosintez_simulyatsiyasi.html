@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O'simliklarda Fotosintez Jarayoni</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            overflow: hidden;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2e7d32;
+            margin-bottom: 20px;
+        }
+        
+        .simulation-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .canvas-container {
+            flex: 1;
+            min-width: 500px;
+            position: relative;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        #simulationCanvas {
+            width: 100%;
+            height: 400px;
+            background-color: #e8f5e9;
+        }
+        
+        .controls {
+            flex: 1;
+            min-width: 300px;
+            background-color: #f1f8e9;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .control-group {
+            margin-bottom: 20px;
+        }
+        
+        .control-group h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #33691e;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .slider-container label {
+            width: 120px;
+            font-weight: bold;
+        }
+        
+        .slider-container input[type="range"] {
+            flex: 1;
+            margin: 0 10px;
+        }
+        
+        .slider-container span {
+            width: 50px;
+            text-align: right;
+        }
+        
+        .info-panel {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f5e9;
+            border-radius: 8px;
+            border-left: 5px solid #2e7d32;
+        }
+        
+        .info-panel h3 {
+            margin-top: 0;
+            color: #2e7d32;
+        }
+        
+        .efficiency-meter {
+            height: 30px;
+            background-color: #e0e0e0;
+            border-radius: 15px;
+            margin: 15px 0;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .efficiency-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffeb3b, #4caf50);
+            width: 50%;
+            transition: width 0.5s ease;
+        }
+        
+        .efficiency-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #333;
+            font-weight: bold;
+            text-shadow: 0 0 2px white;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        button {
+            padding: 10px 15px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #388e3c;
+        }
+        
+        .reset-btn {
+            background-color: #f44336;
+        }
+        
+        .reset-btn:hover {
+            background-color: #d32f2f;
+        }
+        
+        .info-btn {
+            background-color: #2196f3;
+        }
+        
+        .info-btn:hover {
+            background-color: #1976d2;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 80%;
+            max-height: 80%;
+            overflow-y: auto;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .close-btn:hover {
+            color: #000;
+        }
+        
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+        }
+        
+        @media (max-width: 768px) {
+            .simulation-area {
+                flex-direction: column;
+            }
+            
+            .canvas-container, .controls {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>O'simliklarda Fotosintez Jarayoni</h1>
+        
+        <div class="simulation-area">
+            <div class="canvas-container">
+                <canvas id="simulationCanvas" width="600" height="400"></canvas>
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <h3>Simulyatsiya parametrlari</h3>
+                    
+                    <div class="slider-container">
+                        <label for="lightIntensity">Yorug'lik:</label>
+                        <input type="range" id="lightIntensity" min="0" max="100" value="50">
+                        <span id="lightValue">50%</span>
+                    </div>
+                    
+                    <div class="slider-container">
+                        <label for="co2Level">CO₂ miqdori:</label>
+                        <input type="range" id="co2Level" min="0" max="100" value="50">
+                        <span id="co2Value">50%</span>
+                    </div>
+                    
+                    <div class="slider-container">
+                        <label for="temperature">Harorat:</label>
+                        <input type="range" id="temperature" min="0" max="50" value="25">
+                        <span id="tempValue">25°C</span>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Fotosintez samaradorligi</h3>
+                    <div class="efficiency-meter">
+                        <div class="efficiency-fill" id="efficiencyFill"></div>
+                        <div class="efficiency-label" id="efficiencyLabel">50%</div>
+                    </div>
+                    
+                    <div id="efficiencyMessage">
+                        Normal sharoitda fotosintez jarayoni o'rtacha samaradorlikda.
+                    </div>
+                </div>
+                
+                <div class="button-group">
+                    <button id="startBtn">Boshlash</button>
+                    <button id="resetBtn" class="reset-btn">Qayta boshlash</button>
+                    <button id="infoBtn" class="info-btn">Ma'lumot</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-panel">
+            <h3>Joriy holat:</h3>
+            <p id="statusText">Simulyatsiyani boshlash uchun "Boshlash" tugmasini bosing.</p>
+            
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #4caf50;"></div>
+                    <span>O'simlik</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #f44336;"></div>
+                    <span>Kislorod (O₂)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #2196f3;"></div>
+                    <span>Karbonat angidrid (CO₂)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #ffeb3b;"></div>
+                    <span>Yorug'lik</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #9c27b0;"></div>
+                    <span>Glukoza</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="infoModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="closeModal">&times;</span>
+            <h2>Fotosintez haqida ma'lumot</h2>
+            
+            <h3>Fotosintez nima?</h3>
+            <p>Fotosintez - bu o'simliklar, suv o'tlari va ba'zi bakteriyalar tomonidan quyosh energiyasini kimyoviy energiyaga aylantiradigan jarayon. Bu jarayonda karbonat angidrid (CO₂) va suv (H₂O) quyosh nuri ta'sirida glukoza (C₆H₁₂O₆) va kislorod (O₂) ga aylanadi.</p>
+            
+            <h3>Fotosintez formulasi:</h3>
+            <p><strong>6CO₂ + 6H₂O + Yorug'lik energiyasi → C₆H₁₂O₆ + 6O₂</strong></p>
+            
+            <h3>Fotosintezga ta'sir qiluvchi omillar:</h3>
+            <ol>
+                <li><strong>Yorug'lik intensivligi:</strong> Yorug'lik intensivligi oshganda, ma'lum chegaragacha fotosintez tezligi ham oshadi.</li>
+                <li><strong>CO₂ konsentratsiyasi:</strong> CO₂ miqdori oshganda, fotosintez samaradorligi ham oshadi.</li>
+                <li><strong>Harorat:</strong> Optimal harorat (odatda 25-30°C) fotosintez uchun eng samarali. Juda past yoki juda yuqori harorat fotosintezni sekinlashtiradi.</li>
+                <li><strong>Suv mavjudligi:</strong> Suv fotosintez uchun zarur bo'lgan asosiy komponentlardan biri.</li>
+                <li><strong>Xlorofill miqdori:</strong> Xlorofill yorug'lik energiyasini yutadi va fotosintez jarayonini boshlaydi.</li>
+            </ol>
+            
+            <h3>Fotosintezning ahamiyati:</h3>
+            <ul>
+                <li>Atmosferadagi CO₂ miqdorini kamaytiradi</li>
+                <li>Atmosferaga kislorod chiqaradi</li>
+                <li>O'simliklar va boshqa organizmlar uchun ozuqa manbai bo'lgan organik moddalarni hosil qiladi</li>
+                <li>Global iqlim o'zgarishini sekinlashtiradi</li>
+                <li>Yer yuzidagi deyarli barcha oziq-ovqat zanjirlarining asosini tashkil etadi</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Canvas va kontekstni olish
+        const canvas = document.getElementById('simulationCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Simulyatsiya parametrlari
+        let lightIntensity = 50;
+        let co2Level = 50;
+        let temperature = 25;
+        let isSimulationRunning = false;
+        let animationFrameId;
+        
+        // O'simlik parametrlari
+        const plant = {
+            x: canvas.width / 2,
+            y: canvas.height - 100,
+            width: 120,
+            height: 200,
+            leafSize: 40,
+            chloroplasts: [],
+            co2Particles: [],
+            o2Particles: [],
+            glucoseParticles: [],
+            sunrays: []
+        };
+        
+        // Xloroplastlarni yaratish
+        function createChloroplasts() {
+            plant.chloroplasts = [];
+            const numChloroplasts = 8;
+            
+            for (let i = 0; i < numChloroplasts; i++) {
+                plant.chloroplasts.push({
+                    x: plant.x - plant.width/3 + Math.random() * (plant.width/1.5),
+                    y: plant.y - plant.height/2 + Math.random() * (plant.height/2),
+                    size: 10 + Math.random() * 5,
+                    activity: 0
+                });
+            }
+        }
+        
+        // CO2 zarrachalarini yaratish
+        function createCO2Particles() {
+            const numParticles = Math.floor(co2Level / 10) + 3;
+            
+            for (let i = 0; i < numParticles; i++) {
+                if (plant.co2Particles.length < 50) {
+                    plant.co2Particles.push({
+                        x: Math.random() * canvas.width,
+                        y: canvas.height - 10,
+                        size: 4 + Math.random() * 3,
+                        speedX: (Math.random() - 0.5) * 2,
+                        speedY: -1 - Math.random() * 2
+                    });
+                }
+            }
+        }
+        
+        // Quyosh nurlarini yaratish
+        function createSunrays() {
+            const numRays = Math.floor(lightIntensity / 10) + 2;
+            
+            for (let i = 0; i < numRays; i++) {
+                if (plant.sunrays.length < 30) {
+                    plant.sunrays.push({
+                        x: Math.random() * canvas.width,
+                        y: 0,
+                        length: 30 + Math.random() * 50,
+                        speed: 2 + Math.random() * 3,
+                        width: 1 + Math.random() * 2
+                    });
+                }
+            }
+        }
+        
+        // Fotosintez samaradorligini hisoblash
+        function calculateEfficiency() {
+            // Optimal sharoitlar: yorug'lik=70-90%, CO2=60-80%, harorat=20-30°C
+            let lightFactor = 0;
+            let co2Factor = 0;
+            let tempFactor = 0;
+            
+            // Yorug'lik faktori
+            if (lightIntensity < 20) {
+                lightFactor = lightIntensity / 20;
+            } else if (lightIntensity <= 80) {
+                lightFactor = 1;
+            } else {
+                lightFactor = 1 - (lightIntensity - 80) / 20 * 0.3; // Juda yuqori yorug'lik biroz zarar qiladi
+            }
+            
+            // CO2 faktori
+            if (co2Level < 30) {
+                co2Factor = co2Level / 30;
+            } else if (co2Level <= 90) {
+                co2Factor = 1;
+            } else {
+                co2Factor = 1 - (co2Level - 90) / 10 * 0.2; // Juda yuqori CO2 biroz zarar qiladi
+            }
+            
+            // Harorat faktori
+            if (temperature < 15) {
+                tempFactor = temperature / 15;
+            } else if (temperature <= 35) {
+                tempFactor = 1;
+            } else {
+                tempFactor = 1 - (temperature - 35) / 15; // Yuqori harorat zarar qiladi
+            }
+            
+            // Umumiy samaradorlik (0-100%)
+            const efficiency = Math.min(100, Math.max(0, lightFactor * co2Factor * tempFactor * 100));
+            return Math.round(efficiency);
+        }
+        
+        // Samaradorlik asosida xabar ko'rsatish
+        function updateEfficiencyMessage(efficiency) {
+            const messageElement = document.getElementById('efficiencyMessage');
+            const statusElement = document.getElementById('statusText');
+            
+            let message = '';
+            let status = '';
+            
+            if (efficiency < 20) {
+                message = 'Fotosintez juda past samaradorlikda. Sharoitlarni yaxshilang.';
+                status = 'O\'simlik yetarli darajada fotosintez qila olmayapti. Yorug\'lik, CO₂ yoki haroratni o\'zgartiring.';
+            } else if (efficiency < 50) {
+                message = 'Fotosintez past samaradorlikda. Sharoitlarni optimallashtirishingiz mumkin.';
+                status = 'O\'simlik fotosintez qilmoqda, lekin samaradorlik past. Parametrlarni yaxshilang.';
+            } else if (efficiency < 80) {
+                message = 'Fotosintez o\'rtacha samaradorlikda. Yaxshi natija.';
+                status = 'O\'simlik normal fotosintez qilmoqda. Kislorod va glukoza ishlab chiqarilmoqda.';
+            } else {
+                message = 'Fotosintez juda yuqori samaradorlikda! Optimal sharoit yaratildi.';
+                status = 'O\'simlik maksimal darajada fotosintez qilmoqda. Kislorod va glukoza faol ishlab chiqarilmoqda!';
+            }
+            
+            messageElement.textContent = message;
+            statusElement.textContent = status;
+        }
+        
+        // O'simlikni chizish
+        function drawPlant() {
+            // Poya
+            ctx.beginPath();
+            ctx.moveTo(plant.x, canvas.height);
+            ctx.lineTo(plant.x, plant.y);
+            ctx.lineWidth = 10;
+            ctx.strokeStyle = '#8d6e63';
+            ctx.stroke();
+            
+            // Chap barg
+            ctx.beginPath();
+            ctx.ellipse(
+                plant.x - plant.width/3, 
+                plant.y, 
+                plant.leafSize, 
+                plant.leafSize * 2, 
+                Math.PI / 4, 
+                0, 
+                2 * Math.PI
+            );
+            ctx.fillStyle = '#4caf50';
+            ctx.fill();
+            
+            // O'ng barg
+            ctx.beginPath();
+            ctx.ellipse(
+                plant.x + plant.width/3, 
+                plant.y, 
+                plant.leafSize, 
+                plant.leafSize * 2, 
+                -Math.PI / 4, 
+                0, 
+                2 * Math.PI
+            );
+            ctx.fillStyle = '#4caf50';
+            ctx.fill();
+            
+            // Yuqori barg
+            ctx.beginPath();
+            ctx.ellipse(
+                plant.x, 
+                plant.y - plant.height/3, 
+                plant.leafSize * 2, 
+                plant.leafSize, 
+                0, 
+                0, 
+                2 * Math.PI
+            );
+            ctx.fillStyle = '#4caf50';
+            ctx.fill();
+        }
+        
+        // Xloroplastlarni chizish
+        function drawChloroplasts() {
+            const efficiency = calculateEfficiency();
+            
+            plant.chloroplasts.forEach(chloroplast => {
+                ctx.beginPath();
+                ctx.ellipse(
+                    chloroplast.x, 
+                    chloroplast.y, 
+                    chloroplast.size, 
+                    chloroplast.size / 2, 
+                    0, 
+                    0, 
+                    2 * Math.PI
+                );
+                
+                // Samaradorlikka qarab rangni o'zgartirish
+                const greenIntensity = Math.min(255, 100 + efficiency * 1.5);
+                ctx.fillStyle = `rgb(0, ${greenIntensity}, 0)`;
+                ctx.fill();
+                
+                // Xloroplast aktivligini yangilash
+                chloroplast.activity = efficiency / 100;
+            });
+        }
+        
+        // CO2 zarrachalarini chizish va harakatini yangilash
+        function updateCO2Particles() {
+            const efficiency = calculateEfficiency();
+            const absorptionRate = efficiency / 100;
+            
+            for (let i = plant.co2Particles.length - 1; i >= 0; i--) {
+                const particle = plant.co2Particles[i];
+                
+                // Zarrachani chizish
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, particle.size, 0, 2 * Math.PI);
+                ctx.fillStyle = 'rgba(33, 150, 243, 0.7)';
+                ctx.fill();
+                
+                // Zarracha harakatini yangilash
+                particle.x += particle.speedX;
+                particle.y += particle.speedY;
+                
+                // O'simlikka yaqinlashganda yo'nalishni o'zgartirish
+                const distanceToPlant = Math.sqrt(
+                    Math.pow(particle.x - plant.x, 2) + 
+                    Math.pow(particle.y - plant.y, 2)
+                );
+                
+                if (distanceToPlant < 100) {
+                    const dx = plant.x - particle.x;
+                    const dy = plant.y - particle.y;
+                    const angle = Math.atan2(dy, dx);
+                    
+                    particle.speedX = Math.cos(angle) * 1.5;
+                    particle.speedY = Math.sin(angle) * 1.5;
+                }
+                
+                // O'simlik tomonidan yutilishi
+                if (distanceToPlant < 30) {
+                    // Yutilish ehtimoli samaradorlikka bog'liq
+                    if (Math.random() < absorptionRate * 0.2) {
+                        // CO2 yutildi, kislorod va glukoza hosil bo'ldi
+                        createOxygenParticle(particle.x, particle.y);
+                        
+                        if (Math.random() < 0.3) {
+                            createGlucoseParticle(particle.x, particle.y);
+                        }
+                        
+                        plant.co2Particles.splice(i, 1);
+                    }
+                }
+                
+                // Ekrandan chiqib ketgan zarrachalarni o'chirish
+                if (particle.y < 0 || particle.x < 0 || particle.x > canvas.width) {
+                    plant.co2Particles.splice(i, 1);
+                }
+            }
+        }
+        
+        // Kislorod zarrachasini yaratish
+        function createOxygenParticle(x, y) {
+            plant.o2Particles.push({
+                x: x,
+                y: y,
+                size: 3 + Math.random() * 2,
+                speedX: (Math.random() - 0.5) * 2,
+                speedY: -1 - Math.random() * 2,
+                opacity: 1
+            });
+        }
+        
+        // Glukoza zarrachasini yaratish
+        function createGlucoseParticle(x, y) {
+            plant.glucoseParticles.push({
+                x: x,
+                y: y,
+                size: 5 + Math.random() * 3,
+                speedX: (Math.random() - 0.5) * 0.5,
+                speedY: 0.5 + Math.random() * 1,
+                opacity: 1
+            });
+        }
+        
+        // Kislorod zarrachalarini chizish va harakatini yangilash
+        function updateOxygenParticles() {
+            for (let i = plant.o2Particles.length - 1; i >= 0; i--) {
+                const particle = plant.o2Particles[i];
+                
+                // Zarrachani chizish
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, particle.size, 0, 2 * Math.PI);
+                ctx.fillStyle = `rgba(244, 67, 54, ${particle.opacity})`;
+                ctx.fill();
+                
+                // Zarracha harakatini yangilash
+                particle.x += particle.speedX;
+                particle.y += particle.speedY;
+                particle.opacity -= 0.01;
+                
+                // Shaffofligi kamaygan zarrachalarni o'chirish
+                if (particle.opacity <= 0 || particle.y < 0) {
+                    plant.o2Particles.splice(i, 1);
+                }
+            }
+        }
+        
+        // Glukoza zarrachalarini chizish va harakatini yangilash
+        function updateGlucoseParticles() {
+            for (let i = plant.glucoseParticles.length - 1; i >= 0; i--) {
+                const particle = plant.glucoseParticles[i];
+                
+                // Zarrachani chizish
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, particle.size, 0, 2 * Math.PI);
+                ctx.fillStyle = `rgba(156, 39, 176, ${particle.opacity})`;
+                ctx.fill();
+                
+                // Zarracha harakatini yangilash
+                particle.x += particle.speedX;
+                particle.y += particle.speedY;
+                particle.opacity -= 0.005;
+                
+                // Shaffofligi kamaygan zarrachalarni o'chirish
+                if (particle.opacity <= 0 || particle.y > canvas.height) {
+                    plant.glucoseParticles.splice(i, 1);
+                }
+            }
+        }
+        
+        // Quyosh nurlarini chizish va harakatini yangilash
+        function updateSunrays() {
+            for (let i = plant.sunrays.length - 1; i >= 0; i--) {
+                const ray = plant.sunrays[i];
+                
+                // Nurni chizish
+                ctx.beginPath();
+                ctx.moveTo(ray.x, ray.y);
+                ctx.lineTo(ray.x, ray.y + ray.length);
+                ctx.lineWidth = ray.width;
+                ctx.strokeStyle = 'rgba(255, 235, 59, 0.7)';
+                ctx.stroke();
+                
+                // Nur harakatini yangilash
+                ray.y += ray.speed;
+                
+                // Ekrandan chiqib ketgan nurlarni o'chirish
+                if (ray.y > canvas.height) {
+                    plant.sunrays.splice(i, 1);
+                }
+            }
+        }
+        
+        // Fon chizish
+        function drawBackground() {
+            // Osmon
+            const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            skyGradient.addColorStop(0, '#87ceeb');
+            skyGradient.addColorStop(1, '#e8f5e9');
+            
+            ctx.fillStyle = skyGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Quyosh
+            const sunSize = 60 + lightIntensity / 5;
+            const sunGlow = 20 + lightIntensity / 3;
+            
+            // Quyosh nuri
+            ctx.beginPath();
+            ctx.arc(80, 80, sunSize + sunGlow, 0, 2 * Math.PI);
+            const glowGradient = ctx.createRadialGradient(80, 80, sunSize, 80, 80, sunSize + sunGlow);
+            glowGradient.addColorStop(0, 'rgba(255, 235, 59, 0.7)');
+            glowGradient.addColorStop(1, 'rgba(255, 235, 59, 0)');
+            ctx.fillStyle = glowGradient;
+            ctx.fill();
+            
+            // Quyosh
+            ctx.beginPath();
+            ctx.arc(80, 80, sunSize, 0, 2 * Math.PI);
+            ctx.fillStyle = '#ffeb3b';
+            ctx.fill();
+            
+            // Tuproq
+            ctx.fillStyle = '#795548';
+            ctx.fillRect(0, canvas.height - 20, canvas.width, 20);
+        }
+        
+        // Simulyatsiyani yangilash
+        function updateSimulation() {
+            // Ekranni tozalash
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Fon chizish
+            drawBackground();
+            
+            // Quyosh nurlarini yangilash
+            updateSunrays();
+            
+            // CO2 zarrachalarini yangilash
+            updateCO2Particles();
+            
+            // O'simlikni chizish
+            drawPlant();
+            
+            // Xloroplastlarni chizish
+            drawChloroplasts();
+            
+            // Kislorod zarrachalarini yangilash
+            updateOxygenParticles();
+            
+            // Glukoza zarrachalarini yangilash
+            updateGlucoseParticles();
+            
+            // Yangi zarrachalar yaratish
+            if (isSimulationRunning) {
+                if (Math.random() < 0.1) createCO2Particles();
+                if (Math.random() < lightIntensity / 200) createSunrays();
+            }
+            
+            // Samaradorlikni yangilash
+            const efficiency = calculateEfficiency();
+            document.getElementById('efficiencyFill').style.width = `${efficiency}%`;
+            document.getElementById('efficiencyLabel').textContent = `${efficiency}%`;
+            updateEfficiencyMessage(efficiency);
+            
+            // Animatsiyani davom ettirish
+            if (isSimulationRunning) {
+                animationFrameId = requestAnimationFrame(updateSimulation);
+            }
+        }
+        
+        // Simulyatsiyani boshlash
+        function startSimulation() {
+            if (!isSimulationRunning) {
+                isSimulationRunning = true;
+                document.getElementById('startBtn').textContent = 'To\'xtatish';
+                createChloroplasts();
+                animationFrameId = requestAnimationFrame(updateSimulation);
+            } else {
+                isSimulationRunning = false;
+                document.getElementById('startBtn').textContent = 'Boshlash';
+                cancelAnimationFrame(animationFrameId);
+            }
+        }
+        
+        // Simulyatsiyani qayta boshlash
+        function resetSimulation() {
+            isSimulationRunning = false;
+            document.getElementById('startBtn').textContent = 'Boshlash';
+            cancelAnimationFrame(animationFrameId);
+            
+            // Parametrlarni boshlang'ich qiymatga qaytarish
+            document.getElementById('lightIntensity').value = 50;
+            document.getElementById('co2Level').value = 50;
+            document.getElementById('temperature').value = 25;
+            
+            lightIntensity = 50;
+            co2Level = 50;
+            temperature = 25;
+            
+            document.getElementById('lightValue').textContent = '50%';
+            document.getElementById('co2Value').textContent = '50%';
+            document.getElementById('tempValue').textContent = '25°C';
+            
+            // Zarrachalarni tozalash
+            plant.co2Particles = [];
+            plant.o2Particles = [];
+            plant.glucoseParticles = [];
+            plant.sunrays = [];
+            
+            // Samaradorlikni yangilash
+            const efficiency = calculateEfficiency();
+            document.getElementById('efficiencyFill').style.width = `${efficiency}%`;
+            document.getElementById('efficiencyLabel').textContent = `${efficiency}%`;
+            updateEfficiencyMessage(efficiency);
+            
+            // Ekranni yangilash
+            updateSimulation();
+        }
+        
+        // Slayderlar uchun hodisalar
+        document.getElementById('lightIntensity').addEventListener('input', function() {
+            lightIntensity = parseInt(this.value);
+            document.getElementById('lightValue').textContent = `${lightIntensity}%`;
+        });
+        
+        document.getElementById('co2Level').addEventListener('input', function() {
+            co2Level = parseInt(this.value);
+            document.getElementById('co2Value').textContent = `${co2Level}%`;
+        });
+        
+        document.getElementById('temperature').addEventListener('input', function() {
+            temperature = parseInt(this.value);
+            document.getElementById('tempValue').textContent = `${temperature}°C`;
+        });
+        
+        // Tugmalar uchun hodisalar
+        document.getElementById('startBtn').addEventListener('click', startSimulation);
+        document.getElementById('resetBtn').addEventListener('click', resetSimulation);
+        document.getElementById('infoBtn').addEventListener('click', function() {
+            document.getElementById('infoModal').style.display = 'block';
+        });
+        
+        document.getElementById('closeModal').addEventListener('click', function() {
+            document.getElementById('infoModal').style.display = 'none';
+        });
+        
+        // Modal oynani yopish uchun hodisa
+        window.addEventListener('click', function(event) {
+            if (event.target == document.getElementById('infoModal')) {
+                document.getElementById('infoModal').style.display = 'none';
+            }
+        });
+        
+        // Simulyatsiyani boshlang'ich holatga keltirish
+        resetSimulation();
+    </script>
+</body>
+</html>

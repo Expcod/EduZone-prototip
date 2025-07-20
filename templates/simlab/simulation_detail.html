@@ -1,0 +1,324 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ simulation.title }} - {{ subject.name }} {{ grade.number }}-sinf{% endblock %}
+
+{% block extra_css %}
+<style>
+    #simulation-canvas {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #f8f9fa;
+    }
+    .control-panel {
+        background-color: #f0f0f0;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 20px;
+    }
+    .slider-container {
+        margin-bottom: 15px;
+    }
+    .slider-label {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+    }
+    .result-panel {
+        background-color: #e9f7ef;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 20px;
+    }
+    .btn-reset {
+        margin-right: 10px;
+    }
+    .simulation-info {
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Home</a></li>
+            <li class="breadcrumb-item"><a href="/{{ subject.slug }}/" class="text-decoration-none">{{ subject.name }}</a></li>
+            <li class="breadcrumb-item"><a href="/simlab/" class="text-decoration-none">Laboratoriya</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ simulation.title }}</li>
+        </ol>
+    </nav>
+
+    <div class="card">
+        <div class="card-header bg-light">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">{{ simulation.title }}</h2>
+                <a href="/simlab/" class="btn btn-outline-primary">
+                    <i class="bi bi-arrow-left me-2"></i>Orqaga
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="simulation-info">
+                        <h4>Simulyatsiya haqida</h4>
+                        <p>{{ simulation.description }}</p>
+                    </div>
+                    
+                    <div class="simulation-container">
+                        <h4>Interaktiv simulyatsiya</h4>
+                        <canvas id="simulation-canvas" width="700" height="400"></canvas>
+                        
+                        <div class="control-panel">
+                            <h5>Boshqaruv paneli</h5>
+                            
+                            <div class="slider-container">
+                                <div class="slider-label">
+                                    <span>Tezlik:</span>
+                                    <span id="speed-value">5</span>
+                                </div>
+                                <input type="range" class="form-range" id="speed-slider" min="1" max="10" value="5">
+                            </div>
+                            
+                            <div class="slider-container">
+                                <div class="slider-label">
+                                    <span>Hajm:</span>
+                                    <span id="size-value">20</span>
+                                </div>
+                                <input type="range" class="form-range" id="size-slider" min="10" max="50" value="20">
+                            </div>
+                            
+                            <div class="slider-container">
+                                <div class="slider-label">
+                                    <span>Soni:</span>
+                                    <span id="count-value">10</span>
+                                </div>
+                                <input type="range" class="form-range" id="count-slider" min="5" max="30" value="10">
+                            </div>
+                            
+                            <div class="d-flex mt-3">
+                                <button id="reset-btn" class="btn btn-secondary btn-reset">Qayta boshlash</button>
+                                <button id="start-btn" class="btn btn-primary">Boshlash</button>
+                            </div>
+                        </div>
+                        
+                        <div class="result-panel">
+                            <h5>Natijalar</h5>
+                            <div id="results">
+                                <p>Simulyatsiyani boshlash uchun "Boshlash" tugmasini bosing.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card mb-3">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Simulyatsiya ma'lumotlari</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>Fan:</span>
+                                    <span class="fw-medium">{{ subject.name }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>Sinf:</span>
+                                    <span class="fw-medium">{{ grade.number }}-sinf</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>Simulyatsiya turi:</span>
+                                    <span class="fw-medium">{{ simulation.simulation_type.name }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>Yaratilgan sana:</span>
+                                    <span class="fw-medium">{{ simulation.created_at|date:"d.m.Y" }}</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Ko'rsatmalar</h5>
+                        </div>
+                        <div class="card-body">
+                            <ol class="ps-3">
+                                <li class="mb-2">Tezlik, hajm va soni parametrlarini o'zgartiring</li>
+                                <li class="mb-2">"Boshlash" tugmasini bosing</li>
+                                <li class="mb-2">Simulyatsiya natijalarini kuzating</li>
+                                <li class="mb-2">Yangi parametrlar bilan qayta sinab ko'rish uchun "Qayta boshlash" tugmasini bosing</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Canvas setup
+        const canvas = document.getElementById('simulation-canvas');
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+        
+        // Control elements
+        const speedSlider = document.getElementById('speed-slider');
+        const sizeSlider = document.getElementById('size-slider');
+        const countSlider = document.getElementById('count-slider');
+        const speedValue = document.getElementById('speed-value');
+        const sizeValue = document.getElementById('size-value');
+        const countValue = document.getElementById('count-value');
+        const startBtn = document.getElementById('start-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const resultsDiv = document.getElementById('results');
+        
+        // Simulation variables
+        let particles = [];
+        let isRunning = false;
+        let animationId = null;
+        
+        // Update displayed values
+        speedSlider.addEventListener('input', () => {
+            speedValue.textContent = speedSlider.value;
+        });
+        
+        sizeSlider.addEventListener('input', () => {
+            sizeValue.textContent = sizeSlider.value;
+        });
+        
+        countSlider.addEventListener('input', () => {
+            countValue.textContent = countSlider.value;
+        });
+        
+        // Particle class
+        class Particle {
+            constructor(x, y, size, speed) {
+                this.x = x;
+                this.y = y;
+                this.size = size;
+                this.color = getRandomColor();
+                this.speedX = (Math.random() - 0.5) * speed;
+                this.speedY = (Math.random() - 0.5) * speed;
+            }
+            
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                
+                // Bounce off walls
+                if (this.x <= this.size || this.x >= width - this.size) {
+                    this.speedX = -this.speedX;
+                }
+                
+                if (this.y <= this.size || this.y >= height - this.size) {
+                    this.speedY = -this.speedY;
+                }
+            }
+            
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ctx.closePath();
+            }
+        }
+        
+        // Helper functions
+        function getRandomColor() {
+            const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA62B', '#98D8C8', '#F7DB4F', '#C38D9E'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+        
+        function createParticles() {
+            particles = [];
+            const count = parseInt(countSlider.value);
+            const size = parseInt(sizeSlider.value);
+            const speed = parseInt(speedSlider.value);
+            
+            for (let i = 0; i < count; i++) {
+                const x = Math.random() * (width - size * 2) + size;
+                const y = Math.random() * (height - size * 2) + size;
+                particles.push(new Particle(x, y, size, speed));
+            }
+        }
+        
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+            
+            if (isRunning) {
+                animationId = requestAnimationFrame(animate);
+            }
+        }
+        
+        function updateResults() {
+            const speed = parseInt(speedSlider.value);
+            const size = parseInt(sizeSlider.value);
+            const count = parseInt(countSlider.value);
+            
+            let message = `
+                <p><strong>Simulyatsiya natijalari:</strong></p>
+                <ul>
+                    <li>Zarrachalar soni: ${count}</li>
+                    <li>Zarrachalar hajmi: ${size} px</li>
+                    <li>O'rtacha tezlik: ${speed} birlik</li>
+                    <li>Umumiy kinetik energiya: ${Math.round(count * speed * size / 10)} J</li>
+                </ul>
+                <p>Simulyatsiya davom etmoqda...</p>
+            `;
+            
+            resultsDiv.innerHTML = message;
+        }
+        
+        // Button event handlers
+        startBtn.addEventListener('click', () => {
+            if (!isRunning) {
+                isRunning = true;
+                startBtn.textContent = 'To\'xtatish';
+                createParticles();
+                animate();
+                updateResults();
+                
+                // Update results every 2 seconds
+                setInterval(() => {
+                    if (isRunning) {
+                        updateResults();
+                    }
+                }, 2000);
+            } else {
+                isRunning = false;
+                startBtn.textContent = 'Boshlash';
+                cancelAnimationFrame(animationId);
+            }
+        });
+        
+        resetBtn.addEventListener('click', () => {
+            isRunning = false;
+            startBtn.textContent = 'Boshlash';
+            cancelAnimationFrame(animationId);
+            ctx.clearRect(0, 0, width, height);
+            particles = [];
+            resultsDiv.innerHTML = '<p>Simulyatsiyani boshlash uchun "Boshlash" tugmasini bosing.</p>';
+        });
+        
+        // Initial setup
+        ctx.fillStyle = '#f8f9fa';
+        ctx.fillRect(0, 0, width, height);
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+
+{% block title %}Diagnostika natijalari{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'learning_styles:diagnostic_home' %}" class="text-decoration-none">AI Diagnostika</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Natijalar</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Results card -->
+            <div class="card mb-4">
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <h3 class="card-title">Diagnostika natijalari</h3>
+                        <p class="text-muted">{{ diagnostic.date_taken|date:"d.m.Y H:i" }}</p>
+                    </div>
+                    
+                    <div class="alert alert-primary">
+                        <div class="d-flex">
+                            <div class="me-3">
+                                <i class="bi bi-lightbulb-fill fs-1"></i>
+                            </div>
+                            <div>
+                                <h4 class="alert-heading">Sizning asosiy o'rganish uslubingiz: {{ diagnostic.get_primary_style_display }}</h4>
+                                <p class="mb-0">Siz {{ diagnostic.get_primary_style_display }} uslubida o'rganishda kuchlisiz. Bu sizga ma'lumotlarni samarali o'zlashtirishda yordam beradi.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <h5 class="mb-3">O'rganish uslublari bo'yicha ballar</h5>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>Vizual</span>
+                                    <span>{{ diagnostic.visual_score }}%</span>
+                                </div>
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar bg-primary" role="progressbar" style="width: {{ diagnostic.visual_score }}%;" aria-valuenow="{{ diagnostic.visual_score }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>Eshitish</span>
+                                    <span>{{ diagnostic.auditory_score }}%</span>
+                                </div>
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ diagnostic.auditory_score }}%;" aria-valuenow="{{ diagnostic.auditory_score }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>Amaliy</span>
+                                    <span>{{ diagnostic.kinesthetic_score }}%</span>
+                                </div>
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ diagnostic.kinesthetic_score }}%;" aria-valuenow="{{ diagnostic.kinesthetic_score }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>O'qish-Yozish</span>
+                                    <span>{{ diagnostic.reading_writing_score }}%</span>
+                                </div>
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar bg-info" role="progressbar" style="width: {{ diagnostic.reading_writing_score }}%;" aria-valuenow="{{ diagnostic.reading_writing_score }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h5 class="mb-3">Statistika</h5>
+                            
+                            <div class="card bg-light mb-3">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div class="text-center">
+                                            <h3 class="mb-0">{{ similar_users_count }}</h3>
+                                            <div class="small text-muted">O'xshash uslubdagilar</div>
+                                        </div>
+                                        <div class="text-center">
+                                            <h3 class="mb-0">{{ diagnostic.primary_style|upper }}</h3>
+                                            <div class="small text-muted">Asosiy uslub</div>
+                                        </div>
+                                        <div class="text-center">
+                                            <h3 class="mb-0">{{ diagnostic.date_taken|date:"d.m.Y" }}</h3>
+                                            <div class="small text-muted">Sana</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <h5 class="mb-2">O'rtacha ko'rsatkichlar bilan solishtirish</h5>
+                            
+                            <div class="mb-2">
+                                <div class="d-flex justify-content-between mb-1 small">
+                                    <span>Vizual</span>
+                                    <span>{{ all_scores.visual|floatformat:0 }}%</span>
+                                </div>
+                                <div class="progress" style="height: 10px;">
+                                    <div class="progress-bar bg-primary" role="progressbar" style="width: {{ all_scores.visual }}%;" aria-valuenow="{{ all_scores.visual }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-2">
+                                <div class="d-flex justify-content-between mb-1 small">
+                                    <span>Eshitish</span>
+                                    <span>{{ all_scores.auditory|floatformat:0 }}%</span>
+                                </div>
+                                <div class="progress" style="height: 10px;">
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ all_scores.auditory }}%;" aria-valuenow="{{ all_scores.auditory }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-2">
+                                <div class="d-flex justify-content-between mb-1 small">
+                                    <span>Amaliy</span>
+                                    <span>{{ all_scores.kinesthetic|floatformat:0 }}%</span>
+                                </div>
+                                <div class="progress" style="height: 10px;">
+                                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ all_scores.kinesthetic }}%;" aria-valuenow="{{ all_scores.kinesthetic }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-2">
+                                <div class="d-flex justify-content-between mb-1 small">
+                                    <span>O'qish-Yozish</span>
+                                    <span>{{ all_scores.reading_writing|floatformat:0 }}%</span>
+                                </div>
+                                <div class="progress" style="height: 10px;">
+                                    <div class="progress-bar bg-info" role="progressbar" style="width: {{ all_scores.reading_writing }}%;" aria-valuenow="{{ all_scores.reading_writing }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Strengths and recommendations -->
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h4 class="card-title mb-3">Sizning kuchli tomonlaringiz</h4>
+                            <div class="card-text">
+                                {% for strength in diagnostic.strengths.split|linebreaksbr %}
+                                <div class="d-flex mb-2">
+                                    <div class="me-2 text-primary">
+                                        <i class="bi bi-check-circle-fill"></i>
+                                    </div>
+                                    <div>{{ strength }}</div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h4 class="card-title mb-3">Tavsiyalar</h4>
+                            <div class="card-text">
+                                {% for recommendation in diagnostic.recommendations.split|linebreaksbr %}
+                                <div class="d-flex mb-2">
+                                    <div class="me-2 text-success">
+                                        <i class="bi bi-lightbulb-fill"></i>
+                                    </div>
+                                    <div>{{ recommendation }}</div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recommended resources -->
+            {% if recommended_resources %}
+            <div class="card mt-4">
+                <div class="card-body p-4">
+                    <h4 class="card-title mb-4">Sizga tavsiya etilgan o'quv resurslari</h4>
+                    
+                    <div class="row g-4">
+                        {% for resource in recommended_resources %}
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ resource.title }}</h5>
+                                    <p class="card-text">{{ resource.description|truncatewords:20 }}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge bg-primary">{{ resource.get_learning_style_display }}</span>
+                                        {% if resource.subject %}
+                                        <span class="badge bg-secondary">{{ resource.subject.name }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-transparent">
+                                    {% if resource.resource_url %}
+                                    <a href="{{ resource.resource_url }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                                        <i class="bi bi-box-arrow-up-right me-1"></i>Ochish
+                                    </a>
+                                    {% endif %}
+                                    {% if resource.resource_file %}
+                                    <a href="{{ resource.resource_file.url }}" class="btn btn-sm btn-outline-primary" download>
+                                        <i class="bi bi-download me-1"></i>Yuklab olish
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <a href="{% url 'learning_styles:learning_resources' %}" class="btn btn-outline-primary">
+                            <i class="bi bi-collection me-2"></i>Barcha resurslarni ko'rish
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="d-flex justify-content-between mt-4">
+                <a href="{% url 'learning_styles:diagnostic_home' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>Orqaga
+                </a>
+                <a href="{% url 'learning_styles:start_diagnostic' %}" class="btn btn-primary">
+                    <i class="bi bi-arrow-repeat me-2"></i>Qayta o'tish
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

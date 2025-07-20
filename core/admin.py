@@ -50,7 +50,7 @@ class ExperimentAdmin(admin.ModelAdmin):
             'fields': ('title', 'slug', 'subject', 'grade')
         }),
         ('Details', {
-            'fields': ('description', 'difficulty', 'duration', 'instructions')
+            'fields': ('description', 'difficulty', 'duration', 'instructions', 'link')
         }),
         ('Options', {
             'fields': ('is_vr',)

@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Learning Style Diagnostic{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Learning Style Diagnostic</h1>
+    
+    <form method="post" class="mb-4">
+        {% csrf_token %}
+        
+        {% for question in questions %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Question {{ forloop.counter }}</h5>
+                <p class="card-text">{{ question.text }}</p>
+                
+                <div class="form-group">
+                    <label for="question_{{ question.id }}">Your response:</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="question_{{ question.id }}" id="question_{{ question.id }}_1" value="1" required>
+                        <label class="form-check-label" for="question_{{ question.id }}_1">Mutlaqo qo'shilmayman</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="question_{{ question.id }}" id="question_{{ question.id }}_2" value="2">
+                        <label class="form-check-label" for="question_{{ question.id }}_2">Qo'shilmayman</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="question_{{ question.id }}" id="question_{{ question.id }}_3" value="3">
+                        <label class="form-check-label" for="question_{{ question.id }}_3">Neytral</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="question_{{ question.id }}" id="question_{{ question.id }}_4" value="4">
+                        <label class="form-check-label" for="question_{{ question.id }}_4">Qo'shilaman</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="question_{{ question.id }}" id="question_{{ question.id }}_5" value="5">
+                        <label class="form-check-label" for="question_{{ question.id }}_5">To'liq qo'shilaman</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+{% endblock %} 

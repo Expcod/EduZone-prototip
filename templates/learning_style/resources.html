@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block title %}O'quv resurslari{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'learning_styles:diagnostic_home' %}" class="text-decoration-none">AI Diagnostika</a></li>
+            <li class="breadcrumb-item active" aria-current="page">O'quv resurslari</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-body p-4">
+                    <h3 class="card-title mb-4">O'quv resurslari</h3>
+                    
+                    {% if user_style %}
+                    <div class="alert alert-info mb-4">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <i class="bi bi-info-circle-fill fs-3"></i>
+                            </div>
+                            <div>
+                                <h5 class="alert-heading mb-1">Sizning o'rganish uslubingiz: {{ user_style|title }}</h5>
+                                <p class="mb-0">Quyida sizning o'rganish uslubingizga mos resurslar ko'rsatilgan.</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Filters -->
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">Filtrlash</h5>
+                            
+                            <form method="get" action="{% url 'learning_styles:learning_resources' %}">
+                                <div class="row g-3">
+                                    <div class="col-md-3">
+                                        <label for="style" class="form-label">O'rganish uslubi</label>
+                                        <select class="form-select" id="style" name="style">
+                                            <option value="all" {% if current_style == 'all' %}selected{% endif %}>Barcha uslublar</option>
+                                            <option value="visual" {% if current_style == 'visual' %}selected{% endif %}>Vizual</option>
+                                            <option value="auditory" {% if current_style == 'auditory' %}selected{% endif %}>Eshitish</option>
+                                            <option value="kinesthetic" {% if current_style == 'kinesthetic' %}selected{% endif %}>Amaliy</option>
+                                            <option value="reading_writing" {% if current_style == 'reading_writing' %}selected{% endif %}>O'qish-Yozish</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="col-md-3">
+                                        <label for="subject" class="form-label">Fan</label>
+                                        <select class="form-select" id="subject" name="subject">
+                                            <option value="">Barcha fanlar</option>
+                                            {% for subject in subjects %}
+                                            <option value="{{ subject.subject }}" {% if current_subject == subject.subject %}selected{% endif %}>{{ subject.subject__name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="col-md-3">
+                                        <label for="grade" class="form-label">Sinf</label>
+                                        <select class="form-select" id="grade" name="grade">
+                                            <option value="">Barcha sinflar</option>
+                                            {% for grade in grades %}
+                                            <option value="{{ grade.grade }}" {% if current_grade == grade.grade %}selected{% endif %}>{{ grade.grade__number }}-sinf</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="col-md-3 d-flex align-items-end">
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="bi bi-filter me-2"></i>Filtrlash
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Resources -->
+                    <div class="row g-4">
+                        {% for resource in resources %}
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ resource.title }}</h5>
+                                    <p class="card-text">{{ resource.description|truncatewords:30 }}</p>
+                                    
+                                    <div class="d-flex flex-wrap gap-2 mb-3">
+                                        <span class="badge bg-primary">{{ resource.get_learning_style_display }}</span>
+                                        {% if resource.subject %}
+                                        <span class="badge bg-secondary">{{ resource.subject.name }}</span>
+                                        {% endif %}
+                                        {% if resource.grade %}
+                                        <span class="badge bg-info">{{ resource.grade.number }}-sinf</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-transparent">
+                                    {% if resource.resource_url %}
+                                    <a href="{{ resource.resource_url }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                                        <i class="bi bi-box-arrow-up-right me-1"></i>Ochish
+                                    </a>
+                                    {% endif %}
+                                    {% if resource.resource_file %}
+                                    <a href="{{ resource.resource_file.url }}" class="btn btn-sm btn-outline-primary" download>
+                                        <i class="bi bi-download me-1"></i>Yuklab olish
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="col-12">
+                            <div class="alert alert-warning">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>Tanlangan filtrlarga mos resurslar topilmadi.
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

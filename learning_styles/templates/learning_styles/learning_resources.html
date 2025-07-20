@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Learning Resources{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Learning Resources</h1>
+    
+    <div class="row">
+        <div class="col-md-3">
+            <div class="list-group">
+                <a href="{% url 'learning_styles:learning_resources' %}" class="list-group-item list-group-item-action {% if not style %}active{% endif %}">
+                    All Resources
+                </a>
+                <a href="{% url 'learning_styles:learning_resources_by_style' 'visual' %}" class="list-group-item list-group-item-action {% if style == 'visual' %}active{% endif %}">
+                    Visual
+                </a>
+                <a href="{% url 'learning_styles:learning_resources_by_style' 'auditory' %}" class="list-group-item list-group-item-action {% if style == 'auditory' %}active{% endif %}">
+                    Auditory
+                </a>
+                <a href="{% url 'learning_styles:learning_resources_by_style' 'reading' %}" class="list-group-item list-group-item-action {% if style == 'reading' %}active{% endif %}">
+                    Reading/Writing
+                </a>
+                <a href="{% url 'learning_styles:learning_resources_by_style' 'kinesthetic' %}" class="list-group-item list-group-item-action {% if style == 'kinesthetic' %}active{% endif %}">
+                    Kinesthetic
+                </a>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <div class="row">
+                {% for resource in resources %}
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ resource.title }}</h5>
+                            <p class="card-text">{{ resource.description }}</p>
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    Style: {{ resource.learning_style|title }} | 
+                                    Type: {{ resource.resource_type|title }}
+                                </small>
+                            </p>
+                            {% if resource.url %}
+                            <a href="{{ resource.url }}" class="btn btn-primary" target="_blank">View Resource</a>
+                            {% endif %}
+                            {% if resource.file %}
+                            <a href="{{ resource.file.url }}" class="btn btn-secondary" target="_blank">Download</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <p>No resources found for this learning style.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

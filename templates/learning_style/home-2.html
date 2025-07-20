@@ -1,0 +1,271 @@
+{% extends 'base.html' %}
+
+{% block title %}AI Diagnostika - O'rganish uslubini aniqlash{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">AI Diagnostika</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-body p-4 text-center">
+                    <div class="display-6 mb-3">AI Diagnostika</div>
+                    <p class="lead mb-4">Shaxsiy o'rganish uslubingizni aniqlang va o'zingizga mos o'rganish yo'lini toping</p>
+                    
+                    {% if latest_diagnostic %}
+                    <div class="alert alert-success mb-4">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <i class="bi bi-check-circle-fill fs-1"></i>
+                            </div>
+                            <div class="text-start">
+                                <h5 class="alert-heading mb-1">Siz diagnostikadan o'tgansiz!</h5>
+                                <p class="mb-0">Sizning asosiy o'rganish uslubingiz: <strong>{{ latest_diagnostic.get_primary_style_display }}</strong></p>
+                                <p class="mb-0 small">Sana: {{ latest_diagnostic.date_taken|date:"d.m.Y" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="{% url 'learning_styles:diagnostic_results' latest_diagnostic.id %}" class="btn btn-primary">
+                            <i class="bi bi-bar-chart-fill me-2"></i>Natijalarni ko'rish
+                        </a>
+                        <a href="{% url 'learning_styles:start_diagnostic' %}" class="btn btn-outline-primary">
+                            <i class="bi bi-arrow-repeat me-2"></i>Qayta o'tish
+                        </a>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info mb-4">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <i class="bi bi-info-circle-fill fs-1"></i>
+                            </div>
+                            <div class="text-start">
+                                <h5 class="alert-heading mb-1">Diagnostikadan o'tmagansiz</h5>
+                                <p class="mb-0">O'rganish uslubingizni aniqlash uchun qisqa testdan o'ting</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <a href="{% url 'learning_styles:start_diagnostic' %}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-play-fill me-2"></i>Diagnostikani boshlash
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Learning styles info -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body p-4">
+                    <h4 class="card-title mb-4">O'rganish uslublari haqida</h4>
+                    
+                    <div class="mb-4">
+                        <h5 class="d-flex align-items-center">
+                            <i class="bi bi-eye-fill me-2 text-primary"></i>
+                            Vizual
+                        </h5>
+                        <p>Vizual o'rganuvchilar ko'rish orqali ma'lumotni yaxshi qabul qiladi. Ular diagrammalar, grafiklar, rasmlar va videolar orqali samarali o'rganadilar.</p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h5 class="d-flex align-items-center">
+                            <i class="bi bi-ear-fill me-2 text-success"></i>
+                            Eshitish
+                        </h5>
+                        <p>Eshitish orqali o'rganuvchilar ma'ruzalar, muhokamalar va og'zaki tushuntirishlar orqali yaxshi o'rganadilar. Ular audio materiallar va suhbatlardan foydalanishni afzal ko'radilar.</p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h5 class="d-flex align-items-center">
+                            <i class="bi bi-hand-index-thumb-fill me-2 text-danger"></i>
+                            Amaliy
+                        </h5>
+                        <p>Amaliy o'rganuvchilar harakat va tajriba orqali o'rganadilar. Ular laboratoriya ishlari, rolli o'yinlar va amaliy mashg'ulotlar orqali samarali o'rganadilar.</p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h5 class="d-flex align-items-center">
+                            <i class="bi bi-journal-text me-2 text-info"></i>
+                            O'qish-Yozish
+                        </h5>
+                        <p>O'qish-yozish orqali o'rganuvchilar matnlarni o'qish va yozish orqali ma'lumotni yaxshi o'zlashtiradilar. Ular konspekt olish, kitoblar o'qish va yozma mashqlarni afzal ko'radilar.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Benefits -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body p-4">
+                    <h4 class="card-title mb-4">AI Diagnostika afzalliklari</h4>
+                    
+                    <div class="d-flex mb-4">
+                        <div class="me-3 text-primary">
+                            <i class="bi bi-mortarboard-fill fs-1"></i>
+                        </div>
+                        <div>
+                            <h5>O'qituvchilar uchun samarali yondashuv</h5>
+                            <p>O'qituvchilar har bir o'quvchining o'rganish uslubini bilgan holda darslarni samaraliroq tashkil qilishlari mumkin.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex mb-4">
+                        <div class="me-3 text-success">
+                            <i class="bi bi-signpost-split-fill fs-1"></i>
+                        </div>
+                        <div>
+                            <h5>O'quvchi o'ziga mos yo'lni tanlaydi</h5>
+                            <p>O'z o'rganish uslubingizni bilish orqali o'zingizga eng mos o'rganish usullarini tanlashingiz mumkin.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex mb-4">
+                        <div class="me-3 text-danger">
+                            <i class="bi bi-hourglass-split fs-1"></i>
+                        </div>
+                        <div>
+                            <h5>Vaqt tejaydi</h5>
+                            <p>O'zingizga mos o'rganish usullarini qo'llash orqali vaqtingizni tejaysiz va bilimlarni tezroq o'zlashtirasiz.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex">
+                        <div class="me-3 text-info">
+                            <i class="bi bi-graph-up-arrow fs-1"></i>
+                        </div>
+                        <div>
+                            <h5>O'zlashtirish samaradorligini oshiradi</h5>
+                            <p>O'z o'rganish uslubingizga mos usullardan foydalanish orqali o'zlashtirish darajangizni sezilarli darajada oshirishingiz mumkin.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if latest_diagnostic %}
+    <!-- Statistics -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body p-4">
+                    <h4 class="card-title mb-4">Statistika</h4>
+                    
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <h5 class="mb-3">Sizning o'rganish uslubingiz</h5>
+                            <div class="progress mb-3" style="height: 25px;">
+                                <div class="progress-bar bg-primary" role="progressbar" style="width: {{ latest_diagnostic.visual_score }}%;" aria-valuenow="{{ latest_diagnostic.visual_score }}" aria-valuemin="0" aria-valuemax="100">
+                                    Vizual: {{ latest_diagnostic.visual_score }}%
+                                </div>
+                            </div>
+                            <div class="progress mb-3" style="height: 25px;">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: {{ latest_diagnostic.auditory_score }}%;" aria-valuenow="{{ latest_diagnostic.auditory_score }}" aria-valuemin="0" aria-valuemax="100">
+                                    Eshitish: {{ latest_diagnostic.auditory_score }}%
+                                </div>
+                            </div>
+                            <div class="progress mb-3" style="height: 25px;">
+                                <div class="progress-bar bg-danger" role="progressbar" style="width: {{ latest_diagnostic.kinesthetic_score }}%;" aria-valuenow="{{ latest_diagnostic.kinesthetic_score }}" aria-valuemin="0" aria-valuemax="100">
+                                    Amaliy: {{ latest_diagnostic.kinesthetic_score }}%
+                                </div>
+                            </div>
+                            <div class="progress" style="height: 25px;">
+                                <div class="progress-bar bg-info" role="progressbar" style="width: {{ latest_diagnostic.reading_writing_score }}%;" aria-valuenow="{{ latest_diagnostic.reading_writing_score }}" aria-valuemin="0" aria-valuemax="100">
+                                    O'qish-Yozish: {{ latest_diagnostic.reading_writing_score }}%
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h5 class="mb-3">Umumiy statistika</h5>
+                            <div class="d-flex justify-content-between mb-3">
+                                <div class="card bg-light p-3 text-center flex-grow-1 me-2">
+                                    <h3 class="mb-0">{{ total_users_diagnosed }}</h3>
+                                    <div class="small text-muted">Diagnostikadan o'tganlar</div>
+                                </div>
+                                <div class="card bg-light p-3 text-center flex-grow-1">
+                                    <h3 class="mb-0">{{ style_distribution.0.count }}</h3>
+                                    <div class="small text-muted">{{ style_distribution.0.primary_style|title }} uslubidagilar</div>
+                                </div>
+                            </div>
+                            
+                            <h6 class="mb-2">O'rganish uslublari taqsimoti:</h6>
+                            {% for style in style_distribution %}
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>{{ style.primary_style|title }}</span>
+                                <div class="progress flex-grow-1 mx-2" style="height: 10px;">
+                                    <div class="progress-bar" role="progressbar" style="width: {{ style.count|divisibleby:total_users_diagnosed|floatformat:2 }}%;" aria-valuenow="{{ style.count }}" aria-valuemin="0" aria-valuemax="{{ total_users_diagnosed }}"></div>
+                                </div>
+                                <span class="text-muted small">{{ style.count }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Recommended resources -->
+    {% if recommended_resources %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body p-4">
+                    <h4 class="card-title mb-4">Sizga tavsiya etilgan o'quv resurslari</h4>
+                    
+                    <div class="row g-4">
+                        {% for resource in recommended_resources %}
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ resource.title }}</h5>
+                                    <p class="card-text">{{ resource.description|truncatewords:20 }}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge bg-primary">{{ resource.get_learning_style_display }}</span>
+                                        {% if resource.subject %}
+                                        <span class="badge bg-secondary">{{ resource.subject.name }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-transparent">
+                                    {% if resource.resource_url %}
+                                    <a href="{{ resource.resource_url }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                                        <i class="bi bi-box-arrow-up-right me-1"></i>Ochish
+                                    </a>
+                                    {% endif %}
+                                    {% if resource.resource_file %}
+                                    <a href="{{ resource.resource_file.url }}" class="btn btn-sm btn-outline-primary" download>
+                                        <i class="bi bi-download me-1"></i>Yuklab olish
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <a href="{% url 'learning_styles:learning_resources' %}" class="btn btn-outline-primary">
+                            <i class="bi bi-collection me-2"></i>Barcha resurslarni ko'rish
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

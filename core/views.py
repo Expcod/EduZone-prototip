@@ -2,8 +2,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate
 from django.contrib import messages
+from django.utils import timezone
 from .models import Subject, Grade, Experiment, UserExperiment, Achievement, UserAchievement
 from .forms import CustomUserCreationForm, CustomAuthenticationForm, UserProfileForm
+from simlab.models import Simulation
 
 def home(request):
     subjects = Subject.objects.all()
@@ -13,6 +15,7 @@ def home(request):
     stats = {
         'total_experiments': Experiment.objects.count(),
         'subjects_count': subjects.count(),
+        'simulations_count': Simulation.objects.count(),
         'subjects': []
     }
     
@@ -26,10 +29,24 @@ def home(request):
         }
         stats['subjects'].append(subject_stats)
     
+    # Try to get the user's learning style if available
+    learning_style = None
+    if request.user.is_authenticated:
+        try:
+            from learning_styles.models import LearningStyleDiagnostic
+            # Get the most recent learning style diagnostic for the user
+            learning_style = LearningStyleDiagnostic.objects.filter(
+                user=request.user
+            ).order_by('-date_taken').first()
+        except (ImportError, ModuleNotFoundError):
+            # Learning styles app might not be fully set up
+            pass
+    
     return render(request, 'dashboard.html', {
         'subjects': subjects,
         'grades': grades,
         'stats': stats,
+        'learning_style': learning_style,
     })
 
 def grade_dashboard(request, grade_number):
@@ -169,6 +186,16 @@ def profile_view(request):
     # Get user achievements
     user_achievements = UserAchievement.objects.filter(user=user)
     
+    # Get user learning style if available
+    learning_style = None
+    try:
+        # Import here to avoid circular imports
+        from learning_styles.models import LearningStyleDiagnostic
+        learning_style = LearningStyleDiagnostic.objects.filter(user=user).order_by('-date_taken').first()
+    except (ImportError, ModuleNotFoundError):
+        # If learning_styles app is not installed or model doesn't exist
+        pass
+    
     if request.method == 'POST':
         form = UserProfileForm(request.POST, request.FILES, instance=user.profile)
         if form.is_valid():
@@ -185,4 +212,5 @@ def profile_view(request):
         'total_experiments': total_experiments,
         'completion_percentage': int(completed_experiments / max(total_experiments, 1) * 100),
         'user_achievements': user_achievements,
+        'learning_style': learning_style,
     })

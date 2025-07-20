@@ -90,6 +90,23 @@ def grade_simulations(request, grade_number):
         'simulations_by_subject': simulations_by_subject,
     })
 
+def experiment_detail(request, experiment_id):
+    """View for showing experiment details and launching simulation"""
+    experiment = get_object_or_404(Experiment, id=experiment_id)
+    
+    # Check if there's a simulation for this experiment
+    try:
+        simulation = Simulation.objects.get(experiment=experiment, is_active=True)
+        # If simulation exists, redirect to it
+        return redirect('simlab:run_simulation', sim_slug=simulation.slug)
+    except Simulation.DoesNotExist:
+        # If no simulation exists, show experiment details
+        return render(request, 'simlab/experiment_detail.html', {
+            'experiment': experiment,
+            'subject': experiment.subject,
+            'grade': experiment.grade,
+        })
+
 def run_simulation(request, sim_slug):
     """Page to run a specific simulation"""
     simulation = get_object_or_404(Simulation, slug=sim_slug, is_active=True)
@@ -190,3 +207,39 @@ def load_simulation_progress(request, simulation_id):
     
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
+
+def simulation_detail(request, simulation_id):
+    """View for showing simulation details with a simple interactive simulation"""
+    simulation = get_object_or_404(Simulation, id=simulation_id, is_active=True)
+    
+    # Get related experiment and subject information
+    experiment = simulation.experiment
+    subject = experiment.subject
+    grade = experiment.grade
+    
+    # Record that the user viewed this simulation
+    if request.user.is_authenticated:
+        progress, created = UserSimulationProgress.objects.get_or_create(
+            user=request.user,
+            simulation=simulation,
+            defaults={'started': True}
+        )
+    
+    return render(request, 'simlab/simulation_detail.html', {
+        'simulation': simulation,
+        'experiment': experiment,
+        'subject': subject,
+        'grade': grade,
+    })
+
+def laboratory(request):
+    experiments = [
+        {
+            'title': 'Suvning bug\'lanishi',
+            'description': 'Suvning bug\'lanishi haqida tajriba',
+            'link': 'file:///Users/noutbukcom/Downloads/suvning_buglanishi.html',
+            'image': 'images/experiments/water_evaporation.jpg'
+        },
+        # ... existing code ...
+    ]
+    return render(request, 'laboratory.html', {'experiments': experiments})

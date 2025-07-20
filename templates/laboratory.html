@@ -71,7 +71,11 @@
                         Yakunlanmagan
                         {% endif %}
                     </span>
-                    <a href="{% url 'simlab:simulation_detail' experiment.id %}" class="btn btn-primary btn-sm">Boshlash</a>
+                    {% if subject.name == 'Fizika' and grade.number == 9 and experiment.title == 'Matematik mayatnik' %}
+                            <a href="{% url 'simlab:matematik_mayatnik' %}" class="btn btn-primary btn-sm">Boshlash</a>
+                        {% else %}
+                            <a href="{{experiment.link}}" class="btn btn-primary btn-sm">Boshlash</a>
+                        {% endif %}
                 </div>
             </div>
         </div>

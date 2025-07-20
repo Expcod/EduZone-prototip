@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AI Learning Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">AI Learning Dashboard</h1>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Your Learning Style</h5>
+                    <p class="card-text">
+                        Primary: {{ user_style.primary_style|title }}<br>
+                        Secondary: {{ user_style.secondary_style|title }}
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Learning Progress</h5>
+                    <div class="progress mb-2">
+                        <div class="progress-bar bg-primary" role="progressbar" style="width: {{ progress.visual }}%">
+                            Visual: {{ progress.visual }}%
+                        </div>
+                    </div>
+                    <div class="progress mb-2">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ progress.auditory }}%">
+                            Auditory: {{ progress.auditory }}%
+                        </div>
+                    </div>
+                    <div class="progress mb-2">
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: {{ progress.reading }}%">
+                            Reading/Writing: {{ progress.reading }}%
+                        </div>
+                    </div>
+                    <div class="progress mb-2">
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ progress.kinesthetic }}%">
+                            Kinesthetic: {{ progress.kinesthetic }}%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Recommended Resources</h5>
+            <div class="row">
+                {% for resource in recommended_resources %}
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h6 class="card-title">{{ resource.title }}</h6>
+                            <p class="card-text">{{ resource.description }}</p>
+                            {% if resource.url %}
+                            <a href="{{ resource.url }}" class="btn btn-primary btn-sm" target="_blank">View</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <p>No recommended resources available.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Learning Insights</h5>
+            <p class="card-text">{{ insights }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %} 

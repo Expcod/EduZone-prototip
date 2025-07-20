@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parallelogramma va Uchburchak Yuzasi</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #f1f1f1;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+            transition: all 0.3s;
+        }
+        .tab.active {
+            background-color: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .canvas-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        canvas {
+            border: 1px solid #ddd;
+            background-color: white;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .control-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        .slider-container {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+        .value-display {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #666;
+        }
+        .result {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        .formula {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .area-result {
+            font-size: 20px;
+            font-weight: bold;
+            color: #3498db;
+            text-align: center;
+        }
+        .animation-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+        .info-panel {
+            background-color: #edf7ff;
+            border-left: 4px solid #3498db;
+            padding: 10px 15px;
+            margin: 20px 0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .step-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .step-btn {
+            background-color: #2ecc71;
+        }
+        .step-btn:hover {
+            background-color: #27ae60;
+        }
+        .reset-btn {
+            background-color: #e74c3c;
+        }
+        .reset-btn:hover {
+            background-color: #c0392b;
+        }
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin: 10px 0;
+        }
+        .step {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #ddd;
+            margin: 0 5px;
+        }
+        .step.active {
+            background-color: #3498db;
+        }
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+            }
+            .control-group {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Parallelogramma va Uchburchak Yuzasi</h1>
+        
+        <div class="tabs">
+            <div class="tab active" data-tab="parallelogram">Parallelogramma</div>
+            <div class="tab" data-tab="triangle">Uchburchak</div>
+        </div>
+        
+        <div class="tab-content active" id="parallelogram-content">
+            <div class="canvas-container">
+                <canvas id="parallelogramCanvas" width="600" height="400"></canvas>
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <div class="slider-container">
+                        <label for="parallelogramBase">Asos (a):</label>
+                        <input type="range" id="parallelogramBase" min="50" max="300" value="200" step="10">
+                        <div class="value-display">
+                            <span>50</span>
+                            <span id="parallelogramBaseValue">200</span>
+                            <span>300</span>
+                        </div>
+                    </div>
+                    
+                    <div class="slider-container">
+                        <label for="parallelogramHeight">Balandlik (h):</label>
+                        <input type="range" id="parallelogramHeight" min="50" max="200" value="100" step="10">
+                        <div class="value-display">
+                            <span>50</span>
+                            <span id="parallelogramHeightValue">100</span>
+                            <span>200</span>
+                        </div>
+                    </div>
+                    
+                    <div class="slider-container">
+                        <label for="parallelogramAngle">Burchak (α):</label>
+                        <input type="range" id="parallelogramAngle" min="30" max="80" value="60" step="5">
+                        <div class="value-display">
+                            <span>30°</span>
+                            <span id="parallelogramAngleValue">60°</span>
+                            <span>80°</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <div class="result">
+                        <div class="formula">S = a × h</div>
+                        <div class="area-result" id="parallelogramArea">Yuza: 20000 kv.birlik</div>
+                    </div>
+                    
+                    <div class="animation-controls">
+                        <button id="showParallelogramAnimation">Animatsiyani ko'rsatish</button>
+                        <button id="resetParallelogram" class="reset-btn">Qayta boshlash</button>
+                    </div>
+                    
+                    <div class="step-controls" style="display: none;" id="parallelogramStepControls">
+                        <button class="step-btn" id="prevStepParallelogram">← Oldingi</button>
+                        <button class="step-btn" id="nextStepParallelogram">Keyingi →</button>
+                    </div>
+                    
+                    <div class="step-indicator" id="parallelogramStepIndicator">
+                        <div class="step active"></div>
+                        <div class="step"></div>
+                        <div class="step"></div>
+                        <div class="step"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="info-panel">
+                <p><strong>Parallelogramma yuzasi</strong> haqida ma'lumot:</p>
+                <p>Parallelogramma yuzasi uning asosi va balandligi ko'paytmasiga teng: S = a × h</p>
+                <p>Bu formulani tushunish uchun, parallelogrammani to'g'ri to'rtburchakka aylantirish mumkin. Buning uchun parallelogrammaning bir tomonidan uchburchak qirqib olinadi va boshqa tomonga qo'shiladi.</p>
+                <p>Animatsiyani ko'rish uchun "Animatsiyani ko'rsatish" tugmasini bosing.</p>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="triangle-content">
+            <div class="canvas-container">
+                <canvas id="triangleCanvas" width="600" height="400"></canvas>
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <div class="slider-container">
+                        <label for="triangleBase">Asos (a):</label>
+                        <input type="range" id="triangleBase" min="50" max="300" value="200" step="10">
+                        <div class="value-display">
+                            <span>50</span>
+                            <span id="triangleBaseValue">200</span>
+                            <span>300</span>
+                        </div>
+                    </div>
+                    
+                    <div class="slider-container">
+                        <label for="triangleHeight">Balandlik (h):</label>
+                        <input type="range" id="triangleHeight" min="50" max="200" value="150" step="10">
+                        <div class="value-display">
+                            <span>50</span>
+                            <span id="triangleHeightValue">150</span>
+                            <span>200</span>
+                        </div>
+                    </div>
+                    
+                    <div class="slider-container">
+                        <label for="triangleType">Uchburchak turi:</label>
+                        <input type="range" id="triangleType" min="0" max="2" value="1" step="1">
+                        <div class="value-display">
+                            <span>O'tkir burchakli</span>
+                            <span id="triangleTypeValue">To'g'ri burchakli</span>
+                            <span>O'tmas burchakli</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <div class="result">
+                        <div class="formula">S = (a × h) ÷ 2</div>
+                        <div class="area-result" id="triangleArea">Yuza: 15000 kv.birlik</div>
+                    </div>
+                    
+                    <div class="animation-controls">
+                        <button id="showTriangleAnimation">Animatsiyani ko'rsatish</button>
+                        <button id="resetTriangle" class="reset-btn">Qayta boshlash</button>
+                    </div>
+                    
+                    <div class="step-controls" style="display: none;" id="triangleStepControls">
+                        <button class="step-btn" id="prevStepTriangle">← Oldingi</button>
+                        <button class="step-btn" id="nextStepTriangle">Keyingi →</button>
+                    </div>
+                    
+                    <div class="step-indicator" id="triangleStepIndicator">
+                        <div class="step active"></div>
+                        <div class="step"></div>
+                        <div class="step"></div>
+                        <div class="step"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="info-panel">
+                <p><strong>Uchburchak yuzasi</strong> haqida ma'lumot:</p>
+                <p>Uchburchak yuzasi uning asosi va balandligi ko'paytmasining yarmiga teng: S = (a × h) ÷ 2</p>
+                <p>Bu formulani tushunish uchun, uchburchakni parallelogrammaning yarmi sifatida ko'rish mumkin. Ikkita bir xil uchburchakni birlashtirish orqali parallelogramma hosil qilish mumkin.</p>
+                <p>Animatsiyani ko'rish uchun "Animatsiyani ko'rsatish" tugmasini bosing.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM elementlarini olish
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        // Parallelogramma elementlari
+        const parallelogramCanvas = document.getElementById('parallelogramCanvas');
+        const parallelogramCtx = parallelogramCanvas.getContext('2d');
+        const parallelogramBaseSlider = document.getElementById('parallelogramBase');
+        const parallelogramHeightSlider = document.getElementById('parallelogramHeight');
+        const parallelogramAngleSlider = document.getElementById('parallelogramAngle');
+        const parallelogramBaseValue = document.getElementById('parallelogramBaseValue');
+        const parallelogramHeightValue = document.getElementById('parallelogramHeightValue');
+        const parallelogramAngleValue = document.getElementById('parallelogramAngleValue');
+        const parallelogramAreaDisplay = document.getElementById('parallelogramArea');
+        const showParallelogramAnimationBtn = document.getElementById('showParallelogramAnimation');
+        const resetParallelogramBtn = document.getElementById('resetParallelogram');
+        const parallelogramStepControls = document.getElementById('parallelogramStepControls');
+        const prevStepParallelogramBtn = document.getElementById('prevStepParallelogram');
+        const nextStepParallelogramBtn = document.getElementById('nextStepParallelogram');
+        const parallelogramStepIndicator = document.getElementById('parallelogramStepIndicator');
+        
+        // Uchburchak elementlari
+        const triangleCanvas = document.getElementById('triangleCanvas');
+        const triangleCtx = triangleCanvas.getContext('2d');
+        const triangleBaseSlider = document.getElementById('triangleBase');
+        const triangleHeightSlider = document.getElementById('triangleHeight');
+        const triangleTypeSlider = document.getElementById('triangleType');
+        const triangleBaseValue = document.getElementById('triangleBaseValue');
+        const triangleHeightValue = document.getElementById('triangleHeightValue');
+        const triangleTypeValue = document.getElementById('triangleTypeValue');
+        const triangleAreaDisplay = document.getElementById('triangleArea');
+        const showTriangleAnimationBtn = document.getElementById('showTriangleAnimation');
+        const resetTriangleBtn = document.getElementById('resetTriangle');
+        const triangleStepControls = document.getElementById('triangleStepControls');
+        const prevStepTriangleBtn = document.getElementById('prevStepTriangle');
+        const nextStepTriangleBtn = document.getElementById('nextStepTriangle');
+        const triangleStepIndicator = document.getElementById('triangleStepIndicator');
+        
+        // Tab o'zgartirish
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+                
+                tab.classList.add('active');
+                const tabId = tab.getAttribute('data-tab');
+                document.getElementById(`${tabId}-content`).classList.add('active');
+                
+                if (tabId === 'parallelogram') {
+                    drawParallelogram();
+                } else if (tabId === 'triangle') {
+                    drawTriangle();
+                }
+            });
+        });
+        
+        // Parallelogramma o'zgaruvchilari
+        let parallelogramBase = parseInt(parallelogramBaseSlider.value);
+        let parallelogramHeight = parseInt(parallelogramHeightSlider.value);
+        let parallelogramAngle = parseInt(parallelogramAngleSlider.value);
+        let parallelogramAnimationStep = 0;
+        let parallelogramAnimationActive = false;
+        
+        // Uchburchak o'zgaruvchilari
+        let triangleBase = parseInt(triangleBaseSlider.value);
+        let triangleHeight = parseInt(triangleHeightSlider.value);
+        let triangleType = parseInt(triangleTypeSlider.value);
+        let triangleAnimationStep = 0;
+        let triangleAnimationActive = false;
+        
+        // Parallelogramma slayderlarini yangilash
+        parallelogramBaseSlider.addEventListener('input', () => {
+            parallelogramBase = parseInt(parallelogramBaseSlider.value);
+            parallelogramBaseValue.textContent = parallelogramBase;
+            if (!parallelogramAnimationActive) {
+                drawParallelogram();
+                updateParallelogramArea();
+            }
+        });
+        
+        parallelogramHeightSlider.addEventListener('input', () => {
+            parallelogramHeight = parseInt(parallelogramHeightSlider.value);
+            parallelogramHeightValue.textContent = parallelogramHeight;
+            if (!parallelogramAnimationActive) {
+                drawParallelogram();
+                updateParallelogramArea();
+            }
+        });
+        
+        parallelogramAngleSlider.addEventListener('input', () => {
+            parallelogramAngle = parseInt(parallelogramAngleSlider.value);
+            parallelogramAngleValue.textContent = parallelogramAngle + '°';
+            if (!parallelogramAnimationActive) {
+                drawParallelogram();
+                updateParallelogramArea();
+            }
+        });
+        
+        // Uchburchak slayderlarini yangilash
+        triangleBaseSlider.addEventListener('input', () => {
+            triangleBase = parseInt(triangleBaseSlider.value);
+            triangleBaseValue.textContent = triangleBase;
+            if (!triangleAnimationActive) {
+                drawTriangle();
+                updateTriangleArea();
+            }
+        });
+        
+        triangleHeightSlider.addEventListener('input', () => {
+            triangleHeight = parseInt(triangleHeightSlider.value);
+            triangleHeightValue.textContent = triangleHeight;
+            if (!triangleAnimationActive) {
+                drawTriangle();
+                updateTriangleArea();
+            }
+        });
+        
+        triangleTypeSlider.addEventListener('input', () => {
+            triangleType = parseInt(triangleTypeSlider.value);
+            const types = ['O\'tkir burchakli', 'To\'g\'ri burchakli', 'O\'tmas burchakli'];
+            triangleTypeValue.textContent = types[triangleType];
+            if (!triangleAnimationActive) {
+                drawTriangle();
+                updateTriangleArea();
+            }
+        });
+        
+        // Parallelogramma animatsiyasi
+        showParallelogramAnimationBtn.addEventListener('click', () => {
+            parallelogramAnimationActive = true;
+            parallelogramAnimationStep = 0;
+            showParallelogramAnimationBtn.disabled = true;
+            parallelogramStepControls.style.display = 'flex';
+            updateParallelogramStepIndicator();
+            drawParallelogramAnimationStep();
+        });
+        
+        resetParallelogramBtn.addEventListener('click', () => {
+            parallelogramAnimationActive = false;
+            showParallelogramAnimationBtn.disabled = false;
+            parallelogramStepControls.style.display = 'none';
+            drawParallelogram();
+            updateParallelogramArea();
+        });
+        
+        prevStepParallelogramBtn.addEventListener('click', () => {
+            if (parallelogramAnimationStep > 0) {
+                parallelogramAnimationStep--;
+                updateParallelogramStepIndicator();
+                drawParallelogramAnimationStep();
+            }
+        });
+        
+        nextStepParallelogramBtn.addEventListener('click', () => {
+            if (parallelogramAnimationStep < 3) {
+                parallelogramAnimationStep++;
+                updateParallelogramStepIndicator();
+                drawParallelogramAnimationStep();
+            }
+        });
+        
+        // Uchburchak animatsiyasi
+        showTriangleAnimationBtn.addEventListener('click', () => {
+            triangleAnimationActive = true;
+            triangleAnimationStep = 0;
+            showTriangleAnimationBtn.disabled = true;
+            triangleStepControls.style.display = 'flex';
+            updateTriangleStepIndicator();
+            drawTriangleAnimationStep();
+        });
+        
+        resetTriangleBtn.addEventListener('click', () => {
+            triangleAnimationActive = false;
+            showTriangleAnimationBtn.disabled = false;
+            triangleStepControls.style.display = 'none';
+            drawTriangle();
+            updateTriangleArea();
+        });
+        
+        prevStepTriangleBtn.addEventListener('click', () => {
+            if (triangleAnimationStep > 0) {
+                triangleAnimationStep--;
+                updateTriangleStepIndicator();
+                drawTriangleAnimationStep();
+            }
+        });
+        
+        nextStepTriangleBtn.addEventListener('click', () => {
+            if (triangleAnimationStep < 3) {
+                triangleAnimationStep++;
+                updateTriangleStepIndicator();
+                drawTriangleAnimationStep();
+            }
+        });
+        
+        // Parallelogramma chizish
+        function drawParallelogram() {
+            parallelogramCtx.clearRect(0, 0, parallelogramCanvas.width, parallelogramCanvas.height);
+            
+            const centerX = parallelogramCanvas.width / 2;
+            const centerY = parallelogramCanvas.height / 2;
+            
+            const angleRad = (parallelogramAngle * Math.PI) / 180;
+            const offsetX = parallelogramHeight / Math.tan(angleRad);
+            
+            // Parallelogramma nuqtalari
+            const points = [
+                { x: centerX - parallelogramBase / 2, y: centerY + parallelogramHeight / 2 },
+                { x: centerX + parallelogramBase / 2, y: centerY + parallelogramHeight / 2 },
+                { x: centerX + parallelogramBase / 2 - offsetX, y: centerY - parallelogramHeight / 2 },
+                { x: centerX - parallelogramBase / 2 - offsetX, y: centerY - parallelogramHeight / 2 }
+            ];
+            
+            // Parallelogramma chizish
+            parallelogramCtx.beginPath();
+            parallelogramCtx.moveTo(points[0].x, points[0].y);
+            for (let i = 1; i < points.length; i++) {
+                parallelogramCtx.lineTo(points[i].x, points[i].y);
+            }
+            parallelogramCtx.closePath();
+            parallelogramCtx.fillStyle = 'rgba(52, 152, 219, 0.3)';
+            parallelogramCtx.fill();
+            parallelogramCtx.strokeStyle = '#3498db';
+            parallelogramCtx.lineWidth = 2;
+            parallelogramCtx.stroke();
+            
+            // Balandlik chizish
+            parallelogramCtx.beginPath();
+            parallelogramCtx.moveTo(points[0].x, points[0].y);
+            parallelogramCtx.lineTo(points[0].x, points[0].y - parallelogramHeight);
+            parallelogramCtx.strokeStyle = '#e74c3c';
+            parallelogramCtx.lineWidth = 2;
+            parallelogramCtx.setLineDash([5, 3]);
+            parallelogramCtx.stroke();
+            parallelogramCtx.setLineDash([]);
+            
+            // Asos chizish
+            parallelogramCtx.beginPath();
+            parallelogramCtx.moveTo(points[0].x, points[0].y);
+            parallelogramCtx.lineTo(points[1].x, points[1].y);
+            parallelogramCtx.strokeStyle = '#2ecc71';
+            parallelogramCtx.lineWidth = 2;
+            parallelogramCtx.stroke();
+            
+            // Belgilar
+            parallelogramCtx.font = '16px Arial';
+            parallelogramCtx.fillStyle = '#2ecc71';
+            parallelogramCtx.fillText('a', centerX, centerY + parallelogramHeight / 2 + 20);
+            
+            parallelogramCtx.fillStyle = '#e74c3c';
+            parallelogramCtx.fillText('h', points[0].x - 20, centerY);
+            
+            // Burchak belgisi
+            parallelogramCtx.beginPath();
+            parallelogramCtx.arc(points[0].x, points[0].y, 20, 0, (Math.PI / 180) * (180 - parallelogramAngle));
+            parallelogramCtx.strokeStyle = '#f39c12';
+            parallelogramCtx.lineWidth = 2;
+            parallelogramCtx.stroke();
+            
+            parallelogramCtx.fillStyle = '#f39c12';
+            parallelogramCtx.fillText('α', points[0].x + 10, points[0].y - 10);
+        }
+        
+        // Uchburchak chizish
+        function drawTriangle() {
+            triangleCtx.clearRect(0, 0, triangleCanvas.width, triangleCanvas.height);
+            
+            const centerX = triangleCanvas.width / 2;
+            const centerY = triangleCanvas.height / 2;
+            
+            // Uchburchak turi bo'yicha nuqtalar
+            let points;
+            if (triangleType === 0) { // O'tkir burchakli
+                points = [
+                    { x: centerX - triangleBase / 3, y: centerY + triangleHeight / 2 },
+                    { x: centerX + triangleBase * 2 / 3, y: centerY + triangleHeight / 2 },
+                    { x: centerX, y: centerY - triangleHeight / 2 }
+                ];
+            } else if (triangleType === 1) { // To'g'ri burchakli
+                points = [
+                    { x: centerX - triangleBase / 2, y: centerY + triangleHeight / 2 },
+                    { x: centerX + triangleBase / 2, y: centerY + triangleHeight / 2 },
+                    { x: centerX - triangleBase / 2, y: centerY - triangleHeight / 2 }
+                ];
+            } else { // O'tmas burchakli
+                points = [
+                    { x: centerX - triangleBase / 2, y: centerY + triangleHeight / 2 },
+                    { x: centerX + triangleBase / 2, y: centerY + triangleHeight / 2 },
+                    { x: centerX - triangleBase, y: centerY - triangleHeight / 2 }
+                ];
+            }
+            
+            // Uchburchak chizish
+            triangleCtx.beginPath();
+            triangleCtx.moveTo(points[0].x, points[0].y);
+            for (let i = 1; i < points.length; i++) {
+                triangleCtx.lineTo(points[i].x, points[i].y);
+            }
+            triangleCtx.closePath();
+            triangleCtx.fillStyle = 'rgba(46, 204, 113, 0.3)';
+            triangleCtx.fill();
+            triangleCtx.strokeStyle = '#2ecc71';
+            triangleCtx.lineWidth = 2;
+            triangleCtx.stroke();
+            
+            // Balandlik chizish
+            triangleCtx.beginPath();
+            if (triangleType === 1) { // To'g'ri burchakli
+                triangleCtx.moveTo(points[0].x, points[0].y);
+                triangleCtx.lineTo(points[2].x, points[2].y);
+            } else {
+                triangleCtx.moveTo(points[2].x, points[2].y);
+                triangleCtx.lineTo(points[2].x, points[0].y);
+            }
+            triangleCtx.strokeStyle = '#e74c3c';
+            triangleCtx.lineWidth = 2;
+            triangleCtx.setLineDash([5, 3]);
+            triangleCtx.stroke();
+            triangleCtx.setLineDash([]);
+            
+            // Asos chizish
+            triangleCtx.beginPath();
+            triangleCtx.moveTo(points[0].x, points[0].y);
+            triangleCtx.lineTo(points[1].x, points[1].y);
+            triangleCtx.strokeStyle = '#3498db';
+            triangleCtx.lineWidth = 2;
+            triangleCtx.stroke();
+            
+            // Belgilar
+            triangleCtx.font = '16px Arial';
+            triangleCtx.fillStyle = '#3498db';
+            triangleCtx.fillText('a', centerX, centerY + triangleHeight / 2 + 20);
+            
+            triangleCtx.fillStyle = '#e74c3c';
+            triangleCtx.fillText('h', points[2].x - 20, centerY);
+            
+            // To'g'ri burchak belgisi (agar to'g'ri burchakli bo'lsa)
+            if (triangleType === 1) {
+                triangleCtx.beginPath();
+                triangleCtx.moveTo(points[0].x + 15, points[0].y);
+                triangleCtx.lineTo(points[0].x + 15, points[0].y - 15);
+                triangleCtx.lineTo(points[0].x, points[0].y - 15);
+                triangleCtx.strokeStyle = '#f39c12';
+                triangleCtx.lineWidth = 2;
+                triangleCtx.stroke();
+            }
+        }
+        
+        // Parallelogramma yuzasini yangilash
+        function updateParallelogramArea() {
+            const area = parallelogramBase * parallelogramHeight;
+            parallelogramAreaDisplay.textContent = `Yuza: ${area} kv.birlik`;
+        }
+        
+        // Uchburchak yuzasini yangilash
+        function updateTriangleArea() {
+            const area = (triangleBase * triangleHeight) / 2;
+            triangleAreaDisplay.textContent = `Yuza: ${area} kv.birlik`;
+        }
+        
+        // Parallelogramma animatsiya qadamlarini chizish
+        function drawParallelogramAnimationStep() {
+            parallelogramCtx.clearRect(0, 0, parallelogramCanvas.width, parallelogramCanvas.height);
+            
+            const centerX = parallelogramCanvas.width / 2;
+            const centerY = parallelogramCanvas.height / 2;
+            
+            const angleRad = (parallelogramAngle * Math.PI) / 180;
+            const offsetX = parallelogramHeight / Math.tan(angleRad);
+            
+            // Parallelogramma nuqtalari
+            const points = [
+                { x: centerX - parallelogramBase / 2, y: centerY + parallelogramHeight / 2 },
+                { x: centerX + parallelogramBase / 2, y: centerY + parallelogramHeight / 2 },
+                { x: centerX + parallelogramBase / 2 - offsetX, y: centerY - parallelogramHeight / 2 },
+                { x: centerX - parallelogramBase / 2 - offsetX, y: centerY - parallelogramHeight / 2 }
+            ];
+            
+            if (parallelogramAnimationStep === 0) {
+                // Boshlang'ich parallelogramma
+                parallelogramCtx.beginPath();
+                parallelogramCtx.moveTo(points[0].x, points[0].y);
+                for (let i = 1; i < points.length; i++) {
+                    parallelogramCtx.lineTo(points[i].x, points[i].y);
+                }
+                parallelogramCtx.closePath();
+                parallelogramCtx.fillStyle = 'rgba(52, 152, 219, 0.3)';
+                parallelogramCtx.fill();
+                parallelogramCtx.strokeStyle = '#3498db';
+                parallelogramCtx.lineWidth = 2;
+                parallelogramCtx.stroke();
+                
+                // Balandlik va asos
+                parallelogramCtx.beginPath();
+                parallelogramCtx.moveTo(points[0].x, points[0].y);
+                parallelogramCtx.lineTo(points[0].x, points[0].y - parallelogramHeight);
+                parallelogramCtx.strokeStyle = '#e74c3c';
+                parallelogramCtx.lineWidth = 2;
+                parallelogramCtx.setLineDash([5, 3]);
+                parallelogramCtx.stroke();
+                parallelogramCtx.setLineDash([]);
+                
+                parallelogramCtx.beginPath();
+                parallelogramCtx.moveTo(points[0].x, points[0].y);
+                parallelogramCtx.lineTo(points[1].x, points[1].y);
+                parallelogramCtx.strokeStyle = '#2ecc71';
+                parallelogramCtx.lineWidth = 2;
+                parallelogramCtx.stroke();
+                
+                // Belgilar
+                parallelogramCtx.font = '16px Arial';
+                parallelogramCtx.fillStyle = '#2ecc71';
+                parallelogramCtx.fillText('a', centerX, centerY + parallelogramHeight / 2 + 20);
+                
+                parallelogramCtx.fillStyle = '#e74c3c';
+                parallelogramCtx.fillText('h', points[0].x - 20, centerY);
+                
+                // Ma'lumot
+                parallelogramCtx.fillStyle = '#333';
+                parallelogramCtx.fillText('Parallelogramma yuzasi: S = a × h', centerX - 150, centerY - parallelogramHeight / 2 - 30);
+                
+            } else if (parallelogramAnimationStep === 1) {
+                // Parallelogramma va uchburchak qirqish
+                parallelogramCtx.beginPath();
+                parallelogramCtx.moveTo(points[0].x, points[0].y);
+                for (let i = 1; i < points.length; i++) {
+                    parallelogramCtx.lineTo(points[i].x, points[i].y);
+                }
+                parallelogramCtx.closePath();
+                parallelogramCtx.fillStyle = 'rgba(52, 152, 219, 0.3)';
+                parallelogramCtx.fill();
+                parallelogramCtx.strokeStyle = '#3498db';
+                parallelogramCtx.lineWidth = 2;
+                parallelogramCtx.stroke();
+                
+                // Qirqiladigan uchburchak
+                parallelogramCtx.beginPath();
+                parallelogramCtx.moveTo(points[0].x, points[0].y);
+                parallelogramCtx.lineTo(points[3].x, points[3].y);
+                parallelogramCtx.lineTo(points[0].x, points[3].y);
+                parallelogramCtx.closePath();
+                parallelogramCtx.fillStyle = 'rgba(231, 76, 60, 0.5)';
+                parallelogramCtx.fill();
+                parallelogramCtx.strokeStyle = '#e74c3c';
+                parallelogramCtx.lineWidth = 2;
+                parallelogramCtx.stroke();
+                
+                // Ma'lumot
+                parallelogramCtx.fillStyle = '#333';
+                parallelogramCtx.fillText('Qizil uchburchakni qirqib olamiz', centerX - 150, centerY - parallelogramHeight / 2 - 30);
+                
+            } else if (parallelogramAnimationStep === 2) {
+                // Qirqilgan parallelogramma
+                parallelogramCtx.beginPath();
+                parallelogramCtx.moveTo(points[0].x, points[0].y);
+                parallelogramCtx.lineTo(points[1].x, points[1].y);
+                parallelogramCtx.lineTo(points[2].x, points[2].y);
+                parallelogramCtx.lineTo(points[0].x, points[3].y);
+                parallelogramCtx.closePath();
+                parallelogramCtx.fillStyle = 'rgba(52, 152, 219, 0.3)';
+                parallelogramCtx.fill();
+                parallelogramCtx.strokeStyle = '#3498db';
+                parallelogramCtx.lineWidth = 2;
+                parallelogramCtx.stroke();
+                
+                // Ko'chirilayotgan uchburchak
+                parallelogramCtx.beginPath();
+                parallelogramCtx.moveTo(points[0].x, points[0].y);
+                parallelogramCtx.lineTo(points[3].x, points[3].y);
+                parallelogramCtx.lineTo(points[0].x, points[3].y);
+                parallelogramCtx.closePath();
+                parallelogramCtx.fillStyle = 'rgba(231, 76, 60, 0.5)';
+                parallelogramCtx.fill();
+                parallelogramCtx.strokeStyle = '#e74c3c';
+                parallelogramCtx.lineWidth = 2;
+                parallelogramCtx.stroke();
+                
+                // Ko'chirish yo'nalishi
+                parallelogramCtx.beginPath();
+                parallelogramCtx.moveTo(points[3].x + 20, centerY);
+                parallelogramCtx.lineTo(points[2].x - 20, centerY);
+                parallelogramCtx.strokeStyle = '#f39c12';
+                parallelogramCtx.lineWidth = 2;
+                parallelogramCtx.stroke();
+                
+                // Strelka
+                parallelogramCtx.beginPath();
+                parallelogramCtx.moveTo(points[2].x - 20, centerY);
+                parallelogramCtx.lineTo(points[2].x - 30, centerY - 10);
+                parallelogramCtx.lineTo(points[2].x - 30, centerY + 10);
+                parallelogramCtx.closePath();
+                parallelogramCtx.fillStyle = '#f39c12';
+                parallelogramCtx.fill();
+                
+                // Ma'lumot
+                parallelogramCtx.fillStyle = '#333';
+                parallelogramCtx.fillText('Uchburchakni o\'ng tomonga ko\'chiramiz', centerX - 150, centerY - parallelogramHeight / 2 - 30);
+                
+            } else if (parallelogramAnimationStep === 3) {
+                // To'g'ri to'rtburchak
+                parallelogramCtx.beginPath();
+                parallelogramCtx.moveTo(points[0].x, points[0].y);
+                parallelogramCtx.lineTo(points[1].x, points[1].y);
+                parallelogramCtx.lineTo(points[2].x, points[2].y);
+                parallelogramCtx.lineTo(points[2].x - (points[3].x - points[0].x), points[2].y);
+                parallelogramCtx.closePath();
+                parallelogramCtx.fillStyle = 'rgba(52, 152, 219, 0.3)';
+                parallelogramCtx.fill();
+                parallelogramCtx.strokeStyle = '#3498db';
+                parallelogramCtx.lineWidth = 2;
+                parallelogramCtx.stroke();
+                
+                // Balandlik va asos
+                parallelogramCtx.beginPath();
+                parallelogramCtx.moveTo(points[0].x, points[0].y);
+                parallelogramCtx.lineTo(points[0].x, points[0].y - parallelogramHeight);
+                parallelogramCtx.strokeStyle = '#e74c3c';
+                parallelogramCtx.lineWidth = 2;
+                parallelogramCtx.setLineDash([5, 3]);
+                parallelogramCtx.stroke();
+                parallelogramCtx.setLineDash([]);
+                
+                parallelogramCtx.beginPath();
+                parallelogramCtx.moveTo(points[0].x, points[0].y);
+                parallelogramCtx.lineTo(points[1].x, points[1].y);
+                parallelogramCtx.strokeStyle = '#2ecc71';
+                parallelogramCtx.lineWidth = 2;
+                parallelogramCtx.stroke();
+                
+                // Belgilar
+                parallelogramCtx.font = '16px Arial';
+                parallelogramCtx.fillStyle = '#2ecc71';
+                parallelogramCtx.fillText('a', centerX, centerY + parallelogramHeight / 2 + 20);
+                
+                parallelogramCtx.fillStyle = '#e74c3c';
+                parallelogramCtx.fillText('h', points[0].x - 20, centerY);
+                
+                // Ma'lumot
+                parallelogramCtx.fillStyle = '#333';
+                parallelogramCtx.fillText('To\'g\'ri to\'rtburchak hosil bo\'ldi: S = a × h', centerX - 150, centerY - parallelogramHeight / 2 - 30);
+                parallelogramCtx.fillText('Parallelogramma yuzasi ham: S = a × h', centerX - 150, centerY - parallelogramHeight / 2 - 10);
+            }
+        }
+        
+        // Uchburchak animatsiya qadamlarini chizish
+        function drawTriangleAnimationStep() {
+            triangleCtx.clearRect(0, 0, triangleCanvas.width, triangleCanvas.height);
+            
+            const centerX = triangleCanvas.width / 2;
+            const centerY = triangleCanvas.height / 2;
+            
+            // Uchburchak turi bo'yicha nuqtalar
+            let points;
+            if (triangleType === 0) { // O'tkir burchakli
+                points = [
+                    { x: centerX - triangleBase / 3, y: centerY + triangleHeight / 2 },
+                    { x: centerX + triangleBase * 2 / 3, y: centerY + triangleHeight / 2 },
+                    { x: centerX, y: centerY - triangleHeight / 2 }
+                ];
+            } else if (triangleType === 1) { // To'g'ri burchakli
+                points = [
+                    { x: centerX - triangleBase / 2, y: centerY + triangleHeight / 2 },
+                    { x: centerX + triangleBase / 2, y: centerY + triangleHeight / 2 },
+                    { x: centerX - triangleBase / 2, y: centerY - triangleHeight / 2 }
+                ];
+            } else { // O'tmas burchakli
+                points = [
+                    { x: centerX - triangleBase / 2, y: centerY + triangleHeight / 2 },
+                    { x: centerX + triangleBase / 2, y: centerY + triangleHeight / 2 },
+                    { x: centerX - triangleBase, y: centerY - triangleHeight / 2 }
+                ];
+            }
+            
+            if (triangleAnimationStep === 0) {
+                // Boshlang'ich uchburchak
+                triangleCtx.beginPath();
+                triangleCtx.moveTo(points[0].x, points[0].y);
+                for (let i = 1; i < points.length; i++) {
+                    triangleCtx.lineTo(points[i].x, points[i].y);
+                }
+                triangleCtx.closePath();
+                triangleCtx.fillStyle = 'rgba(46, 204, 113, 0.3)';
+                triangleCtx.fill();
+                triangleCtx.strokeStyle = '#2ecc71';
+                triangleCtx.lineWidth = 2;
+                triangleCtx.stroke();
+                
+                // Balandlik va asos
+                triangleCtx.beginPath();
+                if (triangleType === 1) { // To'g'ri burchakli
+                    triangleCtx.moveTo(points[0].x, points[0].y);
+                    triangleCtx.lineTo(points[2].x, points[2].y);
+                } else {
+                    triangleCtx.moveTo(points[2].x, points[2].y);
+                    triangleCtx.lineTo(points[2].x, points[0].y);
+                }
+                triangleCtx.strokeStyle = '#e74c3c';
+                triangleCtx.lineWidth = 2;
+                triangleCtx.setLineDash([5, 3]);
+                triangleCtx.stroke();
+                triangleCtx.setLineDash([]);
+                
+                triangleCtx.beginPath();
+                triangleCtx.moveTo(points[0].x, points[0].y);
+                triangleCtx.lineTo(points[1].x, points[1].y);
+                triangleCtx.strokeStyle = '#3498db';
+                triangleCtx.lineWidth = 2;
+                triangleCtx.stroke();
+                
+                // Belgilar
+                triangleCtx.font = '16px Arial';
+                triangleCtx.fillStyle = '#3498db';
+                triangleCtx.fillText('a', centerX, centerY + triangleHeight / 2 + 20);
+                
+                triangleCtx.fillStyle = '#e74c3c';
+                triangleCtx.fillText('h', points[2].x - 20, centerY);
+                
+                // Ma'lumot
+                triangleCtx.fillStyle = '#333';
+                triangleCtx.fillText('Uchburchak yuzasi: S = (a × h) ÷ 2', centerX - 150, centerY - triangleHeight / 2 - 30);
+                
+            } else if (triangleAnimationStep === 1) {
+                // Uchburchak va uning ko'zgudagi aksi
+                triangleCtx.beginPath();
+                triangleCtx.moveTo(points[0].x, points[0].y);
+                for (let i = 1; i < points.length; i++) {
+                    triangleCtx.lineTo(points[i].x, points[i].y);
+                }
+                triangleCtx.closePath();
+                triangleCtx.fillStyle = 'rgba(46, 204, 113, 0.3)';
+                triangleCtx.fill();
+                triangleCtx.strokeStyle = '#2ecc71';
+                triangleCtx.lineWidth = 2;
+                triangleCtx.stroke();
+                
+                // Ko'zgudagi aks (ikkinchi uchburchak)
+                let mirrorPoints;
+                if (triangleType === 0) { // O'tkir burchakli
+                    mirrorPoints = [
+                        { x: centerX + triangleBase * 2 / 3, y: centerY + triangleHeight / 2 },
+                        { x: centerX - triangleBase / 3, y: centerY + triangleHeight / 2 },
+                        { x: centerX, y: centerY - triangleHeight / 2 }
+                    ];
+                } else if (triangleType === 1) { // To'g'ri burchakli
+                    mirrorPoints = [
+                        { x: centerX + triangleBase / 2, y: centerY + triangleHeight / 2 },
+                        { x: centerX - triangleBase / 2, y: centerY + triangleHeight / 2 },
+                        { x: centerX + triangleBase / 2, y: centerY - triangleHeight / 2 }
+                    ];
+                } else { // O'tmas burchakli
+                    mirrorPoints = [
+                        { x: centerX + triangleBase / 2, y: centerY + triangleHeight / 2 },
+                        { x: centerX - triangleBase / 2, y: centerY + triangleHeight / 2 },
+                        { x: centerX + triangleBase, y: centerY - triangleHeight / 2 }
+                    ];
+                }
+                
+                triangleCtx.beginPath();
+                triangleCtx.moveTo(mirrorPoints[0].x, mirrorPoints[0].y);
+                for (let i = 1; i < mirrorPoints.length; i++) {
+                    triangleCtx.lineTo(mirrorPoints[i].x, mirrorPoints[i].y);
+                }
+                triangleCtx.closePath();
+                triangleCtx.fillStyle = 'rgba(52, 152, 219, 0.3)';
+                triangleCtx.fill();
+                triangleCtx.strokeStyle = '#3498db';
+                triangleCtx.lineWidth = 2;
+                triangleCtx.stroke();
+                
+                // Ko'chirish yo'nalishi
+                triangleCtx.beginPath();
+                triangleCtx.moveTo(centerX, centerY - triangleHeight / 2 - 20);
+                triangleCtx.lineTo(centerX, centerY - triangleHeight / 2 - 50);
+                triangleCtx.strokeStyle = '#f39c12';
+                triangleCtx.lineWidth = 2;
+                triangleCtx.stroke();
+                
+                // Strelka
+                triangleCtx.beginPath();
+                triangleCtx.moveTo(centerX, centerY - triangleHeight / 2 - 50);
+                triangleCtx.lineTo(centerX - 10, centerY - triangleHeight / 2 - 40);
+                triangleCtx.lineTo(centerX + 10, centerY - triangleHeight / 2 - 40);
+                triangleCtx.closePath();
+                triangleCtx.fillStyle = '#f39c12';
+                triangleCtx.fill();
+                
+                // Ma'lumot
+                triangleCtx.fillStyle = '#333';
+                triangleCtx.fillText('Uchburchakni ko\'zguda aks ettirish', centerX - 150, centerY - triangleHeight / 2 - 70);
+                
+            } else if (triangleAnimationStep === 2) {
+                // Uchburchaklarni birlashtirish
+                let mirrorPoints;
+                if (triangleType === 0) { // O'tkir burchakli
+                    mirrorPoints = [
+                        { x: centerX + triangleBase * 2 / 3, y: centerY + triangleHeight / 2 },
+                        { x: centerX - triangleBase / 3, y: centerY + triangleHeight / 2 },
+                        { x: centerX, y: centerY - triangleHeight / 2 }
+                    ];
+                } else if (triangleType === 1) { // To'g'ri burchakli
+                    mirrorPoints = [
+                        { x: centerX + triangleBase / 2, y: centerY + triangleHeight / 2 },
+                        { x: centerX - triangleBase / 2, y: centerY + triangleHeight / 2 },
+                        { x: centerX + triangleBase / 2, y: centerY - triangleHeight / 2 }
+                    ];
+                } else { // O'tmas burchakli
+                    mirrorPoints = [
+                        { x: centerX + triangleBase / 2, y: centerY + triangleHeight / 2 },
+                        { x: centerX - triangleBase / 2, y: centerY + triangleHeight / 2 },
+                        { x: centerX + triangleBase, y: centerY - triangleHeight / 2 }
+                    ];
+                }
+                
+                // Birinchi uchburchak
+                triangleCtx.beginPath();
+                triangleCtx.moveTo(points[0].x, points[0].y);
+                for (let i = 1; i < points.length; i++) {
+                    triangleCtx.lineTo(points[i].x, points[i].y);
+                }
+                triangleCtx.closePath();
+                triangleCtx.fillStyle = 'rgba(46, 204, 113, 0.3)';
+                triangleCtx.fill();
+                triangleCtx.strokeStyle = '#2ecc71';
+                triangleCtx.lineWidth = 2;
+                triangleCtx.stroke();
+                
+                // Ikkinchi uchburchak
+                triangleCtx.beginPath();
+                triangleCtx.moveTo(mirrorPoints[0].x, mirrorPoints[0].y);
+                for (let i = 1; i < mirrorPoints.length; i++) {
+                    triangleCtx.lineTo(mirrorPoints[i].x, mirrorPoints[i].y);
+                }
+                triangleCtx.closePath();
+                triangleCtx.fillStyle = 'rgba(52, 152, 219, 0.3)';
+                triangleCtx.fill();
+                triangleCtx.strokeStyle = '#3498db';
+                triangleCtx.lineWidth = 2;
+                triangleCtx.stroke();
+                
+                // Ma'lumot
+                triangleCtx.fillStyle = '#333';
+                triangleCtx.fillText('Ikkita bir xil uchburchak', centerX - 150, centerY - triangleHeight / 2 - 30);
+                
+            } else if (triangleAnimationStep === 3) {
+                // Parallelogramma hosil qilish
+                let parallelogramPoints = [];
+                if (triangleType === 0) { // O'tkir burchakli
+                    parallelogramPoints = [
+                        { x: centerX - triangleBase / 3, y: centerY + triangleHeight / 2 },
+                        { x: centerX + triangleBase * 2 / 3, y: centerY + triangleHeight / 2 },
+                        { x: centerX + triangleBase / 3, y: centerY - triangleHeight / 2 },
+                        { x: centerX - triangleBase * 2 / 3, y: centerY - triangleHeight / 2 }
+                    ];
+                } else if (triangleType === 1) { // To'g'ri burchakli
+                    parallelogramPoints = [
+                        { x: centerX - triangleBase / 2, y: centerY + triangleHeight / 2 },
+                        { x: centerX + triangleBase / 2, y: centerY + triangleHeight / 2 },
+                        { x: centerX + triangleBase / 2, y: centerY - triangleHeight / 2 },
+                        { x: centerX - triangleBase / 2, y: centerY - triangleHeight / 2 }
+                    ];
+                } else { // O'tmas burchakli
+                    parallelogramPoints = [
+                        { x: centerX - triangleBase / 2, y: centerY + triangleHeight / 2 },
+                        { x: centerX + triangleBase / 2, y: centerY + triangleHeight / 2 },
+                        { x: centerX + triangleBase, y: centerY - triangleHeight / 2 },
+                        { x: centerX - triangleBase, y: centerY - triangleHeight / 2 }
+                    ];
+                }
+                
+                // Parallelogramma chizish
+                triangleCtx.beginPath();
+                triangleCtx.moveTo(parallelogramPoints[0].x, parallelogramPoints[0].y);
+                for (let i = 1; i < parallelogramPoints.length; i++) {
+                    triangleCtx.lineTo(parallelogramPoints[i].x, parallelogramPoints[i].y);
+                }
+                triangleCtx.closePath();
+                triangleCtx.fillStyle = 'rgba(155, 89, 182, 0.3)';
+                triangleCtx.fill();
+                triangleCtx.strokeStyle = '#9b59b6';
+                triangleCtx.lineWidth = 2;
+                triangleCtx.stroke();
+                
+                // Diagonal chizish
+                triangleCtx.beginPath();
+                triangleCtx.moveTo(parallelogramPoints[0].x, parallelogramPoints[0].y);
+                triangleCtx.lineTo(parallelogramPoints[2].x, parallelogramPoints[2].y);
+                triangleCtx.strokeStyle = '#e74c3c';
+                triangleCtx.lineWidth = 2;
+                triangleCtx.setLineDash([5, 3]);
+                triangleCtx.stroke();
+                triangleCtx.setLineDash([]);
+                
+                // Balandlik va asos
+                triangleCtx.beginPath();
+                triangleCtx.moveTo(parallelogramPoints[0].x, parallelogramPoints[0].y);
+                triangleCtx.lineTo(parallelogramPoints[0].x, parallelogramPoints[3].y);
+                triangleCtx.strokeStyle = '#e74c3c';
+                triangleCtx.lineWidth = 2;
+                triangleCtx.setLineDash([5, 3]);
+                triangleCtx.stroke();
+                triangleCtx.setLineDash([]);
+                
+                triangleCtx.beginPath();
+                triangleCtx.moveTo(parallelogramPoints[0].x, parallelogramPoints[0].y);
+                triangleCtx.lineTo(parallelogramPoints[1].x, parallelogramPoints[1].y);
+                triangleCtx.strokeStyle = '#3498db';
+                triangleCtx.lineWidth = 2;
+                triangleCtx.stroke();
+                
+                // Belgilar
+                triangleCtx.font = '16px Arial';
+                triangleCtx.fillStyle = '#3498db';
+                triangleCtx.fillText('a', centerX, centerY + triangleHeight / 2 + 20);
+                
+                triangleCtx.fillStyle = '#e74c3c';
+                triangleCtx.fillText('h', parallelogramPoints[0].x - 20, centerY);
+                
+                // Ma'lumot
+                triangleCtx.fillStyle = '#333';
+                triangleCtx.fillText('Parallelogramma hosil bo\'ldi: S = a × h', centerX - 150, centerY - triangleHeight / 2 - 30);
+                triangleCtx.fillText('Uchburchak yuzasi parallelogramma yuzasining yarmi: S = (a × h) ÷ 2', centerX - 150, centerY - triangleHeight / 2 - 10);
+            }
+        }
+        
+        // Parallelogramma qadam indikatorini yangilash
+        function updateParallelogramStepIndicator() {
+            const steps = parallelogramStepIndicator.querySelectorAll('.step');
+            steps.forEach((step, index) => {
+                if (index === parallelogramAnimationStep) {
+                    step.classList.add('active');
+                } else {
+                    step.classList.remove('active');
+                }
+            });
+            
+            prevStepParallelogramBtn.disabled = parallelogramAnimationStep === 0;
+            nextStepParallelogramBtn.disabled = parallelogramAnimationStep === 3;
+        }
+        
+        // Uchburchak qadam indikatorini yangilash
+        function updateTriangleStepIndicator() {
+            const steps = triangleStepIndicator.querySelectorAll('.step');
+            steps.forEach((step, index) => {
+                if (index === triangleAnimationStep) {
+                    step.classList.add('active');
+                } else {
+                    step.classList.remove('active');
+                }
+            });
+            
+            prevStepTriangleBtn.disabled = triangleAnimationStep === 0;
+            nextStepTriangleBtn.disabled = triangleAnimationStep === 3;
+        }
+        
+        // Boshlang'ich chizish
+        drawParallelogram();
+        updateParallelogramArea();
+        
+        drawTriangle();
+        updateTriangleArea();
+    </script>
+</body>
+</html>

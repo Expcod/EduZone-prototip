@@ -5,7 +5,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = '5pj^$^8j^#@0jmvd537n%1$@z)f_p&pz6$t*csduwd-**$c-f('
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     # Local apps
     'core.apps.CoreConfig',
     'simlab.apps.SimlabConfig',
+    'learning_styles.apps.LearningStylesConfig',
 ]
 
 MIDDLEWARE = [

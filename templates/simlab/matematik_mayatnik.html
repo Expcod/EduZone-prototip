@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matematik Mayatnik Simulyatsiyasi - Fizika</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+        }
+        .container-fluid {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        #simulation-canvas {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .control-panel {
+            background-color: #f0f0f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .slider-container {
+            margin-bottom: 15px;
+        }
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        .result-panel {
+            background-color: #e9f7ef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .btn-reset {
+            margin-right: 10px;
+        }
+        .simulation-info {
+            margin-bottom: 20px;
+        }
+        .formula {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 4px solid #4285f4;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+        }
+        .graph-container {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        #angle-time-graph {
+            width: 100%;
+            height: 200px;
+        }
+        .card {
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 8px;
+        }
+        .card-header {
+            border-radius: 8px 8px 0 0 !important;
+        }
+        h2, h4, h5, h6 {
+            color: #333;
+        }
+        .breadcrumb {
+            background-color: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <div class="card">
+            <div class="card-header bg-light">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="mb-0">Matematik Mayatnik Simulyatsiyasi</h2>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="simulation-info">
+                            <h4>Simulyatsiya haqida</h4>
+                            <p>Matematik mayatnik - bu og'irligi e'tiborga olinmaydigan ip uchiga osilgan massadan iborat tizim. Mayatnik tebranish harakatini amalga oshiradi va uning davri mayatnik uzunligi va gravitatsiya tezlanishiga bog'liq.</p>
+                            
+                            <div class="formula">
+                                <p>Matematik mayatnikning davri quyidagi formula bilan hisoblanadi:</p>
+                                <p>T = 2π√(L/g)</p>
+                                <p>Bu yerda:</p>
+                                <ul>
+                                    <li>T - tebranish davri (sekund)</li>
+                                    <li>L - mayatnik uzunligi (metr)</li>
+                                    <li>g - erkin tushish tezlanishi (9.8 m/s²)</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="simulation-container">
+                            <h4>Interaktiv simulyatsiya</h4>
+                            <canvas id="simulation-canvas" width="700" height="400"></canvas>
+                            
+                            <div class="control-panel">
+                                <h5>Boshqaruv paneli</h5>
+                                
+                                <div class="slider-container">
+                                    <div class="slider-label">
+                                        <span>Mayatnik uzunligi (m):</span>
+                                        <span id="length-value">1.0</span>
+                                    </div>
+                                    <input type="range" class="form-range" id="length-slider" min="0.5" max="2.5" step="0.1" value="1.0">
+                                </div>
+                                
+                                <div class="slider-container">
+                                    <div class="slider-label">
+                                        <span>Boshlang'ich burchak (gradus):</span>
+                                        <span id="angle-value">30</span>
+                                    </div>
+                                    <input type="range" class="form-range" id="angle-slider" min="5" max="60" value="30">
+                                </div>
+                                
+                                <div class="slider-container">
+                                    <div class="slider-label">
+                                        <span>Gravitatsiya tezlanishi (m/s²):</span>
+                                        <span id="gravity-value">9.8</span>
+                                    </div>
+                                    <input type="range" class="form-range" id="gravity-slider" min="1" max="20" step="0.1" value="9.8">
+                                </div>
+                                
+                                <div class="slider-container">
+                                    <div class="slider-label">
+                                        <span>Ishqalanish koeffitsienti:</span>
+                                        <span id="damping-value">0.02</span>
+                                    </div>
+                                    <input type="range" class="form-range" id="damping-slider" min="0" max="0.1" step="0.01" value="0.02">
+                                </div>
+                                
+                                <div class="d-flex mt-3">
+                                    <button id="reset-btn" class="btn btn-secondary btn-reset">Qayta boshlash</button>
+                                    <button id="start-btn" class="btn btn-primary">Boshlash</button>
+                                </div>
+                            </div>
+                            
+                            <div class="graph-container">
+                                <h5>Burchak-vaqt grafigi</h5>
+                                <canvas id="angle-time-graph"></canvas>
+                            </div>
+                            
+                            <div class="result-panel">
+                                <h5>Natijalar</h5>
+                                <div id="results">
+                                    <p>Simulyatsiyani boshlash uchun "Boshlash" tugmasini bosing.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Simulyatsiya ma'lumotlari</h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span>Fan:</span>
+                                        <span class="fw-medium">Fizika</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span>Simulyatsiya turi:</span>
+                                        <span class="fw-medium">Matematik mayatnik</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span>Tebranish davri:</span>
+                                        <span class="fw-medium" id="period-value">2.0 s</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Fizik tushunchalar</h5>
+                            </div>
+                            <div class="card-body">
+                                <h6>Matematik mayatnik</h6>
+                                <p>Matematik mayatnik - bu massasi bir nuqtada to'plangan va og'irligi e'tiborga olinmaydigan ip uchiga osilgan jism.</p>
+                                
+                                <h6>Tebranish davri</h6>
+                                <p>Tebranish davri - bu mayatnikning bir marta to'liq tebranish uchun ketgan vaqt. Bu mayatnik uzunligi va gravitatsiya tezlanishiga bog'liq.</p>
+                                
+                                <h6>Kichik burchaklar yaqinlashuvi</h6>
+                                <p>Kichik burchaklar uchun (θ < 15°) mayatnik harakati garmonik tebranish deb hisoblanishi mumkin va davr burchakka bog'liq emas.</p>
+                                
+                                <h6>Energiya saqlanishi</h6>
+                                <p>Ishqalanish bo'lmaganda, mayatnikning to'liq energiyasi (kinetik + potensial) saqlanadi.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Ko'rsatmalar</h5>
+                            </div>
+                            <div class="card-body">
+                                <ol class="ps-3">
+                                    <li class="mb-2">Mayatnik uzunligi, boshlang'ich burchak va gravitatsiya tezlanishini o'zgartiring</li>
+                                    <li class="mb-2">"Boshlash" tugmasini bosing</li>
+                                    <li class="mb-2">Mayatnik harakatini kuzating va burchak-vaqt grafigini tahlil qiling</li>
+                                    <li class="mb-2">Tebranish davrini hisoblang va nazariy qiymat bilan solishtiring</li>
+                                    <li class="mb-2">Yangi parametrlar bilan qayta sinab ko'rish uchun "Qayta boshlash" tugmasini bosing</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Canvas setup
+            const canvas = document.getElementById('simulation-canvas');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // Control elements
+            const lengthSlider = document.getElementById('length-slider');
+            const angleSlider = document.getElementById('angle-slider');
+            const gravitySlider = document.getElementById('gravity-slider');
+            const dampingSlider = document.getElementById('damping-slider');
+            const lengthValue = document.getElementById('length-value');
+            const angleValue = document.getElementById('angle-value');
+            const gravityValue = document.getElementById('gravity-value');
+            const dampingValue = document.getElementById('damping-value');
+            const startBtn = document.getElementById('start-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const resultsDiv = document.getElementById('results');
+            const periodValue = document.getElementById('period-value');
+            
+            // Graph setup
+            const graphCanvas = document.getElementById('angle-time-graph');
+            const graphCtx = graphCanvas.getContext('2d');
+            let angleTimeChart;
+            
+            // Simulation variables
+            let pendulumLength = parseFloat(lengthSlider.value);
+            let initialAngle = parseInt(angleSlider.value) * Math.PI / 180; // Convert to radians
+            let gravity = parseFloat(gravitySlider.value);
+            let damping = parseFloat(dampingSlider.value);
+            
+            let angle = initialAngle;
+            let angularVelocity = 0;
+            let time = 0;
+            let isRunning = false;
+            let animationId = null;
+            let lastTimestamp = 0;
+            
+            // Data for the graph
+            const timeData = [];
+            const angleData = [];
+            const maxDataPoints = 200;
+            
+            // Update displayed values
+            lengthSlider.addEventListener('input', () => {
+                pendulumLength = parseFloat(lengthSlider.value);
+                lengthValue.textContent = pendulumLength.toFixed(1);
+                updatePeriod();
+            });
+            
+            angleSlider.addEventListener('input', () => {
+                initialAngle = parseInt(angleSlider.value) * Math.PI / 180;
+                angleValue.textContent = angleSlider.value;
+                if (!isRunning) {
+                    angle = initialAngle;
+                    drawPendulum();
+                }
+            });
+            
+            gravitySlider.addEventListener('input', () => {
+                gravity = parseFloat(gravitySlider.value);
+                gravityValue.textContent = gravity.toFixed(1);
+                updatePeriod();
+            });
+            
+            dampingSlider.addEventListener('input', () => {
+                damping = parseFloat(dampingSlider.value);
+                dampingValue.textContent = damping.toFixed(2);
+            });
+            
+            // Calculate theoretical period
+            function calculatePeriod() {
+                // T = 2π√(L/g)
+                return 2 * Math.PI * Math.sqrt(pendulumLength / gravity);
+            }
+            
+            // Update period display
+            function updatePeriod() {
+                const period = calculatePeriod();
+                periodValue.textContent = period.toFixed(2) + ' s';
+            }
+            
+            // Initialize the angle-time graph
+            function initGraph() {
+                if (angleTimeChart) {
+                    angleTimeChart.destroy();
+                }
+                
+                timeData.length = 0;
+                angleData.length = 0;
+                
+                angleTimeChart = new Chart(graphCtx, {
+                    type: 'line',
+                    data: {
+                        labels: timeData,
+                        datasets: [{
+                            label: 'Burchak (gradus)',
+                            data: angleData,
+                            borderColor: '#4285f4',
+                            backgroundColor: 'rgba(66, 133, 244, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Vaqt (s)'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Burchak (gradus)'
+                                }
+                            }
+                        },
+                        animation: false
+                    }
+                });
+            }
+            
+            // Draw the pendulum
+            function drawPendulum() {
+                // Clear canvas
+                ctx.clearRect(0, 0, width, height);
+                
+                // Set origin to the top center of the canvas
+                const originX = width / 2;
+                const originY = 50;
+                
+                // Calculate pendulum position
+                const pendulumX = originX + Math.sin(angle) * (pendulumLength * 100);
+                const pendulumY = originY + Math.cos(angle) * (pendulumLength * 100);
+                
+                // Draw pivot point
+                ctx.beginPath();
+                ctx.arc(originX, originY, 5, 0, Math.PI * 2);
+                ctx.fillStyle = '#333';
+                ctx.fill();
+                
+                // Draw string
+                ctx.beginPath();
+                ctx.moveTo(originX, originY);
+                ctx.lineTo(pendulumX, pendulumY);
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // Draw bob
+                ctx.beginPath();
+                ctx.arc(pendulumX, pendulumY, 15, 0, Math.PI * 2);
+                ctx.fillStyle = '#e74c3c';
+                ctx.fill();
+                ctx.strokeStyle = '#c0392b';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // Draw angle indicator
+                ctx.beginPath();
+                ctx.moveTo(originX, originY);
+                ctx.lineTo(originX + 40, originY);
+                ctx.strokeStyle = '#aaa';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(originX, originY);
+                ctx.arc(originX, originY, 40, 0, angle, angle > 0);
+                ctx.strokeStyle = '#4285f4';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // Draw angle text
+                ctx.fillStyle = '#4285f4';
+                ctx.font = '14px Arial';
+                const angleDegrees = (angle * 180 / Math.PI).toFixed(1);
+                ctx.fillText(`${angleDegrees}°`, originX + 45, originY + 15);
+                
+                // Draw trace of pendulum path
+                if (isRunning && timeData.length > 1) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = 'rgba(231, 76, 60, 0.2)';
+                    ctx.lineWidth = 1;
+                    
+                    for (let i = Math.max(0, timeData.length - 100); i < timeData.length; i++) {
+                        const traceAngle = angleData[i] * Math.PI / 180;
+                        const traceX = originX + Math.sin(traceAngle) * (pendulumLength * 100);
+                        const traceY = originY + Math.cos(traceAngle) * (pendulumLength * 100);
+                        
+                        if (i === Math.max(0, timeData.length - 100)) {
+                            ctx.moveTo(traceX, traceY);
+                        } else {
+                            ctx.lineTo(traceX, traceY);
+                        }
+                    }
+                    
+                    ctx.stroke();
+                }
+            }
+            
+            // Update pendulum physics
+            function updatePendulum(deltaTime) {
+                // Calculate angular acceleration: α = -(g/L)sin(θ) - damping*ω
+                const angularAcceleration = -(gravity / pendulumLength) * Math.sin(angle) - damping * angularVelocity;
+                
+                // Update angular velocity: ω = ω + α*dt
+                angularVelocity += angularAcceleration * deltaTime;
+                
+                // Update angle: θ = θ + ω*dt
+                angle += angularVelocity * deltaTime;
+                
+                // Update time
+                time += deltaTime;
+                
+                // Add data to graph
+                timeData.push(time.toFixed(1));
+                angleData.push((angle * 180 / Math.PI).toFixed(1));
+                
+                // Limit data points
+                if (timeData.length > maxDataPoints) {
+                    timeData.shift();
+                    angleData.shift();
+                }
+                
+                // Update the chart
+                angleTimeChart.update();
+                
+                // Update results
+                updateResults();
+            }
+            
+            // Update results display
+            function updateResults() {
+                const period = calculatePeriod();
+                const currentAngleDegrees = (angle * 180 / Math.PI).toFixed(1);
+                const angularVelocityDegrees = (angularVelocity * 180 / Math.PI).toFixed(1);
+                
+                // Calculate energy
+                const mass = 1; // Assume mass = 1kg for simplicity
+                const potentialEnergy = mass * gravity * pendulumLength * (1 - Math.cos(angle));
+                const kineticEnergy = 0.5 * mass * pendulumLength * pendulumLength * angularVelocity * angularVelocity;
+                const totalEnergy = potentialEnergy + kineticEnergy;
+                
+                let message = `
+                    <p><strong>Simulyatsiya natijalari:</strong></p>
+                    <ul>
+                        <li>Joriy vaqt: ${time.toFixed(2)} s</li>
+                        <li>Joriy burchak: ${currentAngleDegrees}°</li>
+                        <li>Burchak tezligi: ${angularVelocityDegrees}°/s</li>
+                        <li>Nazariy davr: ${period.toFixed(2)} s</li>
+                        <li>Potensial energiya: ${potentialEnergy.toFixed(2)} J</li>
+                        <li>Kinetik energiya: ${kineticEnergy.toFixed(2)} J</li>
+                        <li>Umumiy energiya: ${totalEnergy.toFixed(2)} J</li>
+                    </ul>
+                `;
+                
+                resultsDiv.innerHTML = message;
+            }
+            
+            // Animation loop
+            function animate(timestamp) {
+                if (!lastTimestamp) {
+                    lastTimestamp = timestamp;
+                }
+                
+                const deltaTime = (timestamp - lastTimestamp) / 1000; // Convert to seconds
+                lastTimestamp = timestamp;
+                
+                updatePendulum(deltaTime);
+                drawPendulum();
+                
+                if (isRunning) {
+                    animationId = requestAnimationFrame(animate);
+                }
+            }
+            
+            // Start simulation
+            function startSimulation() {
+                if (!isRunning) {
+                    isRunning = true;
+                    startBtn.textContent = 'To\'xtatish';
+                    lastTimestamp = 0;
+                    initGraph();
+                    animationId = requestAnimationFrame(animate);
+                } else {
+                    isRunning = false;
+                    startBtn.textContent = 'Boshlash';
+                    cancelAnimationFrame(animationId);
+                }
+            }
+            
+            // Reset simulation
+            function resetSimulation() {
+                isRunning = false;
+                startBtn.textContent = 'Boshlash';
+                cancelAnimationFrame(animationId);
+                
+                // Reset variables
+                angle = initialAngle;
+                angularVelocity = 0;
+                time = 0;
+                lastTimestamp = 0;
+                
+                // Clear graph
+                timeData.length = 0;
+                angleData.length = 0;
+                if (angleTimeChart) {
+                    angleTimeChart.update();
+                }
+                
+                // Redraw pendulum
+                drawPendulum();
+                
+                // Update results
+                resultsDiv.innerHTML = '<p>Simulyatsiyani boshlash uchun "Boshlash" tugmasini bosing.</p>';
+            }
+            
+            // Button event handlers
+            startBtn.addEventListener('click', startSimulation);
+            resetBtn.addEventListener('click', resetSimulation);
+            
+            // Initialize
+            updatePeriod();
+            initGraph();
+            drawPendulum();
+        });
+    </script>
+</body>
+</html>

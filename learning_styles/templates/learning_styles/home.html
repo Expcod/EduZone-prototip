@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Learning Styles{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Learning Styles</h1>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Learning Style Diagnostic</h5>
+                    <p class="card-text">Take our diagnostic test to discover your learning style and get personalized recommendations.</p>
+                    <a href="{% url 'learning_styles:diagnostic_test' %}" class="btn btn-primary">Start Diagnostic</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Learning Resources</h5>
+                    <p class="card-text">Access learning resources tailored to your learning style.</p>
+                    <a href="{% url 'learning_styles:learning_resources' %}" class="btn btn-primary">View Resources</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

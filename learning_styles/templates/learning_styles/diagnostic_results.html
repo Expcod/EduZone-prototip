@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Diagnostic Results{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Your Learning Style Results</h1>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Primary Learning Style</h5>
+            <p class="card-text">{{ diagnostic.primary_style|title }}</p>
+            
+            {% if diagnostic.secondary_style %}
+            <h5 class="card-title">Secondary Learning Style</h5>
+            <p class="card-text">{{ diagnostic.secondary_style|title }}</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Style Distribution</h5>
+            <div class="progress mb-2">
+                <div class="progress-bar bg-primary" role="progressbar" style="width: {{ diagnostic.visual_score }}%">
+                    Visual: {{ diagnostic.visual_score }}%
+                </div>
+            </div>
+            <div class="progress mb-2">
+                <div class="progress-bar bg-success" role="progressbar" style="width: {{ diagnostic.auditory_score }}%">
+                    Auditory: {{ diagnostic.auditory_score }}%
+                </div>
+            </div>
+            <div class="progress mb-2">
+                <div class="progress-bar bg-warning" role="progressbar" style="width: {{ diagnostic.reading_score }}%">
+                    Reading/Writing: {{ diagnostic.reading_score }}%
+                </div>
+            </div>
+            <div class="progress mb-2">
+                <div class="progress-bar bg-danger" role="progressbar" style="width: {{ diagnostic.kinesthetic_score }}%">
+                    Kinesthetic: {{ diagnostic.kinesthetic_score }}%
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Recommendations</h5>
+            <p class="card-text">{{ diagnostic.recommendations|linebreaks }}</p>
+        </div>
+    </div>
+    
+    <a href="{% url 'learning_styles:learning_resources' %}" class="btn btn-primary">View Learning Resources</a>
+</div>
+{% endblock %} 

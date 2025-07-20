@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}O'rganish uslubi diagnostikasi{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'learning_styles:diagnostic_home' %}" class="text-decoration-none">AI Diagnostika</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Diagnostika testi</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body p-4">
+                    <h3 class="card-title mb-4 text-center">O'rganish uslubi diagnostikasi</h3>
+                    <p class="text-center mb-4">Quyidagi savollarga javob bering. Har bir savolga 1 dan 5 gacha ball bering, bunda 1 - mutlaqo qo'shilmayman, 5 - to'liq qo'shilaman.</p>
+                    
+                    <form method="post" action="{% url 'learning_styles:start_diagnostic' %}">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between small text-muted mb-2">
+                                <span>Mutlaqo qo'shilmayman</span>
+                                <span>To'liq qo'shilaman</span>
+                            </div>
+                            <div class="d-flex justify-content-between small text-muted mb-3">
+                                <span>1</span>
+                                <span>2</span>
+                                <span>3</span>
+                                <span>4</span>
+                                <span>5</span>
+                            </div>
+                        </div>
+                        
+                        {% for question in questions %}
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ forloop.counter }}. {{ question.question_text }}</h5>
+                                
+                                <div class="mt-3">
+                                    <div class="d-flex justify-content-between">
+                                        {% for i in "12345" %}
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="question_{{ question.id }}" id="q{{ question.id }}_{{ i }}" value="{{ i }}" required>
+                                            <label class="form-check-label" for="q{{ question.id }}_{{ i }}">
+                                                {{ i }}
+                                            </label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-check-circle me-2"></i>Diagnostikani yakunlash
+                            </button>
+                            <a href="{% url 'learning_styles:diagnostic_home' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle me-2"></i>Bekor qilish
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

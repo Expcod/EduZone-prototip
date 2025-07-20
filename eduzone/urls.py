@@ -6,10 +6,12 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('core.urls')),
-    path('simlab/', include('simlab.urls', namespace='simlab')),  # Add namespace back
+    path('', include('core.urls')),  # Root URL pattern
+    path('api/core/', include('core.urls')),
+    path('api/simlab/', include('simlab.urls')),
     path('api/', include('core.api_urls')),
     path('api-auth/', include('rest_framework.urls')),
+    path('learning_styles/', include('learning_styles.urls', namespace='learning_styles')),
 ]
 
 if settings.DEBUG:

@@ -4,6 +4,54 @@
 
 {% block content %}
 <div class="container-fluid py-4">
+    <!-- AI Diagnostics Feature Card -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm overflow-hidden">
+                <div class="row g-0">
+                    <div class="col-md-8">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="rounded-circle p-3 me-3 bg-info bg-opacity-10">
+                                    <i class="bi bi-brain text-info" style="font-size: 1.5rem;"></i>
+                                </div>
+                                <h4 class="card-title mb-0">AI Diagnostika - Shaxsiy o'rganish uslubingizni aniqlang</h4>
+                            </div>
+                            <p class="card-text">Har bir o'quvchi bilimni har xil qabul qiladi. Kimdir vizual, kimdir eshitish orqali o'rganadi. EduZone AI orqali o'rganish uslubingizni aniqlang va o'zingizga mos yo'lni tanlang.</p>
+                            <div class="mt-3">
+                                <a href="{% url 'learning_styles:home' %}" class="btn btn-info text-white">Diagnostikani boshlash</a>
+                                <a href="{% url 'learning_styles:resources' %}" class="btn btn-outline-info ms-2">O'quv resurslari</a>
+                            </div>
+                            {% if user.is_authenticated and user_learning_style %}
+                            <div class="mt-3 pt-3 border-top">
+                                <h6>Sizning o'rganish uslubingiz: <span class="fw-bold">{{ user_learning_style.primary_style }}</span></h6>
+                                <div class="progress mt-2" style="height: 10px;">
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ user_learning_style.visual_score }}%;" aria-valuenow="{{ user_learning_style.visual_score }}" aria-valuemin="0" aria-valuemax="100" title="Vizual: {{ user_learning_style.visual_score }}%"></div>
+                                    <div class="progress-bar bg-primary" role="progressbar" style="width: {{ user_learning_style.auditory_score }}%;" aria-valuenow="{{ user_learning_style.auditory_score }}" aria-valuemin="0" aria-valuemax="100" title="Eshitish: {{ user_learning_style.auditory_score }}%"></div>
+                                    <div class="progress-bar bg-warning" role="progressbar" style="width: {{ user_learning_style.kinesthetic_score }}%;" aria-valuenow="{{ user_learning_style.kinesthetic_score }}" aria-valuemin="0" aria-valuemax="100" title="Kinestetik: {{ user_learning_style.kinesthetic_score }}%"></div>
+                                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ user_learning_style.reading_writing_score }}%;" aria-valuenow="{{ user_learning_style.reading_writing_score }}" aria-valuemin="0" aria-valuemax="100" title="O'qish/Yozish: {{ user_learning_style.reading_writing_score }}%"></div>
+                                </div>
+                                <div class="d-flex justify-content-between mt-1 small text-muted">
+                                    <span>Vizual</span>
+                                    <span>Eshitish</span>
+                                    <span>Kinestetik</span>
+                                    <span>O'qish/Yozish</span>
+                                </div>
+                                <a href="{% url 'learning_styles:results' %}" class="btn btn-sm btn-link text-info mt-2">To'liq natijalarni ko'rish</a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-4 d-none d-md-block">
+                        <div class="h-100 bg-info bg-opacity-10 d-flex align-items-center justify-content-center p-4">
+                            <img src="/static/images/ai-diagnostics.png" alt="AI Diagnostics" class="img-fluid" style="max-height: 200px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Subject Cards with Charts -->
     <div class="row g-4 mb-4">
         {% for subject in stats.subjects %}

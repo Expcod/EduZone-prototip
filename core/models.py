@@ -37,6 +37,7 @@ class Experiment(models.Model):
     difficulty = models.CharField(max_length=10, choices=DIFFICULTY_CHOICES, default='medium')
     duration = models.CharField(max_length=50, help_text="e.g., '30 daqiqa'")
     instructions = models.TextField(blank=True)
+    link = models.CharField(max_length=200, blank=True, null=True)
     is_vr = models.BooleanField(default=False, help_text="Is this a VR experiment?")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
